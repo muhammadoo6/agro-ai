@@ -49,7 +49,7 @@ class FarmRepository extends ChangeNotifier {
   bool _loaded = false;
   bool get isLoaded => _loaded;
 
-  Future<void> _pendingSave = Future.value();
+  Future<void>? _pendingSave;
 
   List<Plot> get plots => List.unmodifiable(_plots);
   List<CropCycle> get cycles => List.unmodifiable(_cycles);
@@ -133,10 +133,12 @@ class FarmRepository extends ChangeNotifier {
   Future<void> _commit() {
     notifyListeners();
     final data = jsonEncode(toJson());
-    _pendingSave = _pendingSave
-        .catchError((Object _) {})
-        .then((_) => _store.write(storageKey, data));
-    return _pendingSave;
+    final prev = _pendingSave;
+    final next = prev == null
+        ? _store.write(storageKey, data)
+        : prev.catchError((Object _) {}).then((_) => _store.write(storageKey, data));
+    _pendingSave = next;
+    return next;
   }
 
   void _upsert<T>(List<T> list, T item, String Function(T) id) {
@@ -353,5 +355,5 @@ class FarmRepository extends ChangeNotifier {
 
   /// Барои санҷишҳо: интизори анҷоми сабт.
   @visibleForTesting
-  Future<void> flush() => _pendingSave;
+  Future<void> flush() => _pendingSave ?? Future.value();
 }
