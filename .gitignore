@@ -17,8 +17,10 @@ android/.gradle/
 android/local.properties
 android/**/GeneratedPluginRegistrant.*
 android/key.properties
+android/keys/
 *.jks
 *.keystore
+*.p12
 
 # iOS
 ios/Pods/
