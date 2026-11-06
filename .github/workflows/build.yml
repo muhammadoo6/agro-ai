@@ -1,0 +1,72 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.9'
+          channel: stable
+          cache: true
+
+      # Як маротиба: сохтани android/ ва ios/ ва илова кардани китобхонаҳо.
+      - name: Scaffold platforms (first run only)
+        if: ${{ hashFiles('android/app/build.gradle.kts', 'android/app/build.gradle') == '' }}
+        run: |
+          flutter create --project-name agro_ai --org tj.agroai --platforms android,ios .
+          flutter pub add http image_picker path_provider intl flutter_local_notifications timezone share_plus file_picker
+          flutter pub add dev:flutter_lints
+          git status --short
+          mkdir -p scaffold
+          cp -r android ios pubspec.yaml pubspec.lock analysis_options.yaml scaffold/
+          [ -f .metadata ] && cp .metadata scaffold/ || true
+
+      - name: Upload scaffold
+        if: ${{ hashFiles('android/app/build.gradle.kts', 'android/app/build.gradle') == '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: scaffold
+          path: scaffold/
+
+      - run: flutter pub get
+
+      - name: Analyze
+        id: analyze
+        continue-on-error: true
+        run: flutter analyze --no-fatal-infos
+
+      - name: Test
+        id: test
+        continue-on-error: true
+        run: flutter test
+
+      - name: Build APK
+        run: flutter build apk --release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: agro-ai-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Fail if analyze or tests failed
+        if: ${{ steps.analyze.outcome == 'failure' || steps.test.outcome == 'failure' }}
+        run: |
+          echo "analyze=${{ steps.analyze.outcome }} test=${{ steps.test.outcome }}"
+          exit 1

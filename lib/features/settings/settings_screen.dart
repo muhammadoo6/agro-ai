@@ -1,0 +1,236 @@
+import 'package:flutter/material.dart';
+
+import '../../core/app_scope.dart';
+import '../../core/localization/app_strings.dart';
+import '../../core/validation/validators.dart';
+import '../../shared/widgets/common.dart';
+
+class SettingsScreen extends StatelessWidget {
+  const SettingsScreen({super.key});
+
+  static const appVersion = '1.0.0';
+
+  @override
+  Widget build(BuildContext context) {
+    final s = AppScope.of(context);
+    final l = context.l;
+    return Scaffold(
+      appBar: AppBar(title: Text(l.t('settings'))),
+      body: ValueListenableBuilder(
+        valueListenable: s.settings,
+        builder: (context, settings, _) => ListView(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+          children: [
+            SectionHeader(l.t('language')),
+            Card(
+              child: RadioGroup<String>(
+                groupValue: settings.languageCode,
+                onChanged: (v) {
+                  if (v != null) {
+                    s.settings.update(settings.copyWith(languageCode: v));
+                  }
+                },
+                child: Column(
+                  children: [
+                    for (final e in supportedLanguages.entries)
+                      RadioListTile<String>(value: e.key, title: Text(e.value)),
+                  ],
+                ),
+              ),
+            ),
+            SectionHeader(l.t('theme')),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: SegmentedButton<ThemeMode>(
+                  segments: [
+                    ButtonSegment(
+                        value: ThemeMode.system,
+                        icon: const Icon(Icons.brightness_auto),
+                        label: Text(l.t('theme_system'))),
+                    ButtonSegment(
+                        value: ThemeMode.light,
+                        icon: const Icon(Icons.light_mode),
+                        label: Text(l.t('theme_light'))),
+                    ButtonSegment(
+                        value: ThemeMode.dark,
+                        icon: const Icon(Icons.dark_mode),
+                        label: Text(l.t('theme_dark'))),
+                  ],
+                  selected: {settings.themeMode},
+                  onSelectionChanged: (v) =>
+                      s.settings.update(settings.copyWith(themeMode: v.first)),
+                ),
+              ),
+            ),
+            SectionHeader(l.t('ai_section')),
+            Card(
+              child: ListTile(
+                leading: Icon(
+                  settings.hasApiKey ? Icons.key : Icons.key_off_outlined,
+                  color: settings.hasApiKey ? Colors.green : null,
+                ),
+                title: Text(l.t('api_key')),
+                subtitle: Text(l.t(
+                    settings.hasApiKey ? 'api_key_set' : 'api_key_not_set')),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => _editApiKey(context),
+              ),
+            ),
+            SectionHeader(l.t('notifications')),
+            Card(
+              child: SwitchListTile(
+                secondary: const Icon(Icons.notifications_outlined),
+                title: Text(l.t('notifications')),
+                subtitle: Text(l.t('notifications_desc')),
+                value: settings.notificationsEnabled,
+                onChanged: (b) async {
+                  await s.settings
+                      .update(settings.copyWith(notificationsEnabled: b));
+                  if (b) {
+                    await s.notifications.requestPermission();
+                  } else {
+                    await s.notifications.cancelAll();
+                  }
+                },
+              ),
+            ),
+            SectionHeader(l.t('backup')),
+            Card(
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.upload_file),
+                    title: Text(l.t('backup_export')),
+                    subtitle: Text(l.t('backup_export_desc')),
+                    onTap: () async {
+                      try {
+                        await s.backup.exportAndShare(s.farm);
+                        if (context.mounted) showSnack(context, l.t('backup_done'));
+                      } catch (e) {
+                        if (context.mounted) {
+                          showSnack(context, '${l.t('error')}: $e');
+                        }
+                      }
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.settings_backup_restore),
+                    title: Text(l.t('backup_import')),
+                    subtitle: Text(l.t('backup_import_desc')),
+                    onTap: () async {
+                      if (!await confirmDialog(
+                          context, l.t('backup_import_confirm'))) {
+                        return;
+                      }
+                      try {
+                        final ok = await s.backup.pickAndRestore(s.farm);
+                        if (ok && context.mounted) {
+                          await s.notifications.cancelAll();
+                          if (context.mounted) {
+                            showSnack(context, l.t('restore_done'));
+                          }
+                        }
+                      } on FormatException {
+                        if (context.mounted) {
+                          showSnack(context, l.t('backup_invalid'));
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          showSnack(context, '${l.t('error')}: $e');
+                        }
+                      }
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.delete_forever_outlined,
+                        color: Theme.of(context).colorScheme.error),
+                    title: Text(l.t('clear_data'),
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.error)),
+                    onTap: () async {
+                      if (!await confirmDialog(
+                          context, l.t('clear_data_confirm'),
+                          confirmLabel: l.t('delete'))) {
+                        return;
+                      }
+                      await s.notifications.cancelAll();
+                      await s.farm.clearAll();
+                      if (context.mounted) showSnack(context, l.t('deleted'));
+                    },
+                  ),
+                ],
+              ),
+            ),
+            SectionHeader(l.t('about')),
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.info_outline),
+                title: Text(l.t('app_name')),
+                subtitle: Text('${l.t('version')} $appVersion'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _editApiKey(BuildContext context) async {
+    final s = AppScope.of(context);
+    final l = context.l;
+    final ctrl = TextEditingController(text: s.settings.value.apiKey);
+    final formKey = GlobalKey<FormState>();
+    final result = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l.t('api_key')),
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: ctrl,
+                obscureText: true,
+                autocorrect: false,
+                enableSuggestions: false,
+                decoration: InputDecoration(hintText: l.t('api_key_hint')),
+                validator: (v) {
+                  final e = Validators.apiKey(v);
+                  return e == null ? null : l.t(e);
+                },
+              ),
+              const SizedBox(height: 8),
+              Text(l.t('api_key_help'),
+                  style: Theme.of(ctx).textTheme.bodySmall),
+            ],
+          ),
+        ),
+        actions: [
+          if (s.settings.value.hasApiKey)
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, ''),
+              child: Text(l.t('delete')),
+            ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l.t('cancel')),
+          ),
+          FilledButton(
+            onPressed: () {
+              if (formKey.currentState!.validate()) {
+                Navigator.pop(ctx, ctrl.text.trim());
+              }
+            },
+            child: Text(l.t('save')),
+          ),
+        ],
+      ),
+    );
+    ctrl.dispose();
+    if (result != null) {
+      await s.settings.update(s.settings.value.copyWith(apiKey: result));
+    }
+  }
+}

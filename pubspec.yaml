@@ -1,0 +1,25 @@
+name: agro_ai
+description: "Agro AI — ёрдамчии рақамии деҳқони тоҷик: қитъаҳо, обёрӣ, скани растанӣ бо AI, дафтари хоҷагӣ ва донишнома."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/data/
