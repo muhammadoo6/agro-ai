@@ -28,8 +28,10 @@ jobs:
 
       # Як маротиба: сохтани android/ ва ios/ ва илова кардани китобхонаҳо.
       - name: Scaffold platforms (first run only)
+        id: scaffold
         if: ${{ hashFiles('android/app/build.gradle.kts', 'android/app/build.gradle') == '' }}
         run: |
+          echo "done=true" >> "$GITHUB_OUTPUT"
           flutter create --project-name agro_ai --org tj.agroai --platforms android,ios .
           flutter pub add http image_picker path_provider intl flutter_local_notifications timezone share_plus file_picker
           flutter pub add dev:flutter_lints
@@ -39,11 +41,16 @@ jobs:
           [ -f .metadata ] && cp .metadata scaffold/ || true
 
       - name: Upload scaffold
-        if: ${{ hashFiles('android/app/build.gradle.kts', 'android/app/build.gradle') == '' }}
+        if: ${{ steps.scaffold.outputs.done == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: scaffold
           path: scaffold/
+          include-hidden-files: true
+
+      - name: Remove scaffold copy
+        if: ${{ steps.scaffold.outputs.done == 'true' }}
+        run: rm -rf scaffold
 
       - run: flutter pub get
 

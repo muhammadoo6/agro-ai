@@ -48,10 +48,9 @@ class BackupService {
 
   /// Интихоби файл ва барқароркунӣ. `false` — агар корбар бекор кунад.
   Future<bool> pickAndRestore(FarmRepository farm) async {
-    final res = await FilePicker.platform.pickFiles(type: FileType.any);
-    final path = res?.files.single.path;
-    if (path == null) return false;
-    final data = decode(await File(path).readAsString());
+    final file = await FilePicker.pickFile();
+    if (file == null) return false;
+    final data = decode(utf8.decode(await file.readAsBytes()));
     await farm.replaceAll(data);
     return true;
   }

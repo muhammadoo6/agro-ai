@@ -18,7 +18,7 @@ class FarmDiaryScreen extends StatefulWidget {
 
 class _FarmDiaryScreenState extends State<FarmDiaryScreen>
     with SingleTickerProviderStateMixin {
-  late final _tabs = TabController(length: 3, vsync: this)
+  late final TabController _tabs = TabController(length: 3, vsync: this)
     ..addListener(() {
       if (!_tabs.indexIsChanging) setState(() {});
     });
