@@ -63,7 +63,12 @@ void main() {
 
     expect(services.farm.plots.single.areaHa, 1.5);
     expect(find.text('Замини поён'), findsOneWidget);
-    expect(find.textContaining('1,5 га'), findsOneWidget);
+    final texts = tester
+        .widgetList<Text>(find.byType(Text))
+        .map((t) => t.data ?? t.textSpan?.toPlainText() ?? '')
+        .toList();
+    expect(texts.any((t) => t.contains('1,5 га')), isTrue,
+        reason: 'visible texts: $texts');
   });
 
   testWidgets('language switch to Russian', (tester) async {

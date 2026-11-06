@@ -65,12 +65,19 @@ jobs:
         run: flutter test
 
       - name: Build APK
-        run: flutter build apk --release
+        run: flutter build apk --release --split-per-abi
 
+      # Барои аксари телефонҳои муосир (64-бит)
       - uses: actions/upload-artifact@v4
         with:
-          name: agro-ai-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: agro-ai-arm64
+          path: build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+
+      # Барои телефонҳои кӯҳнаи 32-бита
+      - uses: actions/upload-artifact@v4
+        with:
+          name: agro-ai-armv7
+          path: build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
 
       - name: Fail if analyze or tests failed
         if: ${{ steps.analyze.outcome == 'failure' || steps.test.outcome == 'failure' }}
