@@ -48,13 +48,15 @@ class HomeScreen extends StatelessWidget {
               Text(l.t('home_subtitle'),
                   style: Theme.of(context).textTheme.bodyMedium),
               const SizedBox(height: 16),
-              GridView.count(
-                crossAxisCount: 2,
+              GridView(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                childAspectRatio: 1.6,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  mainAxisExtent: 112,
+                ),
                 children: [
                   StatTile(
                     icon: Icons.grid_view,
@@ -81,13 +83,15 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
               SectionHeader(l.t('quick_actions')),
-              GridView.count(
-                crossAxisCount: 4,
+              GridView(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 8,
-                crossAxisSpacing: 8,
-                childAspectRatio: 0.78,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4,
+                  mainAxisSpacing: 8,
+                  crossAxisSpacing: 8,
+                  mainAxisExtent: 124,
+                ),
                 children: [
                   QuickAction(
                     icon: Icons.add_location_alt_outlined,

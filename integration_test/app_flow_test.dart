@@ -6,6 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
+Finder navItem(String label) => find.descendant(
+    of: find.byType(NavigationBar), matching: find.text(label));
+
 /// Ҷараёни пурра дар дастгоҳ: қитъа → мавсим → обёрӣ → хароҷот → хулоса.
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -19,7 +22,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // 1. Қитъа
-    await tester.tap(find.text('Қитъаҳо').last);
+    await tester.tap(navItem('Қитъаҳо'));
     await tester.pumpAndSettle();
     await tester.tap(find.byType(FloatingActionButton));
     await tester.pumpAndSettle();
@@ -51,7 +54,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // 4. Хароҷот
-    await tester.tap(find.text('Дафтар'));
+    await tester.tap(navItem('Дафтар'));
     await tester.pumpAndSettle();
     await tester.tap(find.byType(FloatingActionButton));
     await tester.pumpAndSettle();
@@ -63,7 +66,7 @@ void main() {
     expect(services.farm.summary().expense, 500);
 
     // 5. Асосӣ
-    await tester.tap(find.text('Асосӣ'));
+    await tester.tap(navItem('Асосӣ'));
     await tester.pumpAndSettle();
     expect(find.text('Қитъаи 1'), findsOneWidget); // обёрии наздик
   });
