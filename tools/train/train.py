@@ -26,10 +26,9 @@ SEED = 42
 LIMIT = int(os.environ.get("LIMIT", "0"))  # >0 — быстрый пробный прогон
 
 # Культуры, полезные для Таджикистана.
-KEEP_CROPS = {
-    "Apple", "Cherry_(including_sour)", "Corn_(maize)", "Grape", "Peach",
-    "Pepper,_bell", "Potato", "Strawberry", "Tomato",
-}
+# Сравниваем по началу названия (в TFDS: "Cherry___...", "Corn___..." и т.п.).
+KEEP_CROPS = ("apple", "cherry", "corn", "grape", "peach", "pepper", "potato",
+              "strawberry", "tomato")
 
 os.makedirs(OUT_DIR, exist_ok=True)
 tf.keras.utils.set_random_seed(SEED)
@@ -43,7 +42,8 @@ t0 = time.time()
     shuffle_files=True,
 )
 all_names = info.features["label"].names
-keep = [i for i, n in enumerate(all_names) if n.split("___")[0] in KEEP_CROPS]
+print("all classes:", all_names)
+keep = [i for i, n in enumerate(all_names) if n.lower().startswith(KEEP_CROPS)]
 labels = [all_names[i] for i in keep]
 print(f"classes kept: {len(labels)} / {len(all_names)}")
 
