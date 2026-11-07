@@ -70,8 +70,7 @@ class _FriendlyError extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.all(16),
               child: Text(
-                'Ин қисм кушода нашуд. Маълумоти шумо бехатар аст.
-'
+                'Ин қисм кушода нашуд. Маълумоти шумо бехатар аст. '
                 'Эта часть не открылась. Ваши данные в сохранности.',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Color(0xFF33691E), fontSize: 14),
@@ -109,8 +108,7 @@ class _StartupFailed extends StatelessWidget {
                   Text('$error', textAlign: TextAlign.center),
                   const SizedBox(height: 16),
                   const Text(
-                    'Ҷойи холиро дар телефон санҷед ва барномаро аз нав кушоед.
-'
+                    'Ҷойи холиро дар телефон санҷед ва барномаро аз нав кушоед. '
                     'Проверьте свободное место и откройте приложение снова.',
                     textAlign: TextAlign.center,
                   ),
