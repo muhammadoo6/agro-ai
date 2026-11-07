@@ -85,7 +85,7 @@ void main() {
   test('every label in the bundled model has text in the base', () {
     final f = File('assets/models/labels.json');
     final modelLabels = (jsonDecode(f.readAsStringSync())['labels'] as List).cast<String>();
-    for (final l in modelLabels) {
+    for (final l in modelLabels.where((l) => !OfflineDiagnoser.isOther(l))) {
       expect(base.has(l), isTrue, reason: 'нет описания для $l');
       expect(base.info(l).treatmentIn('tg'), isNotEmpty, reason: l);
       expect(base.info(l).treatmentIn('ru'), isNotEmpty, reason: l);

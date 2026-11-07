@@ -1,6 +1,6 @@
 {
- "val_accuracy": 0.9505347593582888,
- "tflite_sample_accuracy": 0.940625,
+ "val_accuracy": 0.9558908879860708,
+ "tflite_sample_accuracy": 0.9359375,
  "img": 224,
  "train_counts": {
   "Apple___Apple_scab": 534,
@@ -35,12 +35,23 @@
   "Tomato___Spider_mites Two-spotted_spider_mite": 1426,
   "Tomato___Target_Spot": 1178,
   "Tomato___Tomato_mosaic_virus": 316,
-  "Tomato___Tomato_Yellow_Leaf_Curl_Virus": 4504
+  "Tomato___Tomato_Yellow_Leaf_Curl_Virus": 4504,
+  "Cotton___Bacterial_blight": 600,
+  "Cotton___Herbicide_damage": 600,
+  "Cotton___Jassids": 600,
+  "Cotton___Leaf_curl_virus": 600,
+  "Cotton___Leaf_reddening": 600,
+  "Cotton___Leaf_variegation": 600,
+  "Cotton___healthy": 600,
+  "Other___not_leaf": 2975,
+  "Wheat___Septoria": 600,
+  "Wheat___Stripe_rust": 600,
+  "Wheat___healthy": 600
  },
  "per_class": {
   "Apple___Apple_scab": {
    "n": 96,
-   "acc": 0.9375
+   "acc": 0.9479166666666666
   },
   "Apple___Black_rot": {
    "n": 107,
@@ -52,7 +63,7 @@
   },
   "Apple___healthy": {
    "n": 255,
-   "acc": 0.996078431372549
+   "acc": 1.0
   },
   "Cherry___healthy": {
    "n": 135,
@@ -60,11 +71,11 @@
   },
   "Cherry___Powdery_mildew": {
    "n": 147,
-   "acc": 0.9863945578231292
+   "acc": 0.9795918367346939
   },
   "Corn___Cercospora_leaf_spot Gray_leaf_spot": {
    "n": 86,
-   "acc": 0.8837209302325582
+   "acc": 0.8604651162790697
   },
   "Corn___Common_rust": {
    "n": 185,
@@ -76,7 +87,7 @@
   },
   "Corn___Northern_Leaf_Blight": {
    "n": 153,
-   "acc": 0.9215686274509803
+   "acc": 0.954248366013072
   },
   "Grape___Black_rot": {
    "n": 163,
@@ -84,7 +95,7 @@
   },
   "Grape___Esca_(Black_Measles)": {
    "n": 201,
-   "acc": 0.9701492537313433
+   "acc": 0.9651741293532339
   },
   "Grape___healthy": {
    "n": 58,
@@ -96,7 +107,7 @@
   },
   "Peach___Bacterial_spot": {
    "n": 343,
-   "acc": 0.9883381924198251
+   "acc": 0.9912536443148688
   },
   "Peach___healthy": {
    "n": 47,
@@ -108,11 +119,11 @@
   },
   "Pepper,_bell___healthy": {
    "n": 231,
-   "acc": 0.9826839826839827
+   "acc": 0.9913419913419913
   },
   "Potato___Early_blight": {
    "n": 141,
-   "acc": 0.9858156028368794
+   "acc": 0.9787234042553191
   },
   "Potato___healthy": {
    "n": 22,
@@ -120,7 +131,7 @@
   },
   "Potato___Late_blight": {
    "n": 153,
-   "acc": 0.9869281045751634
+   "acc": 0.9738562091503268
   },
   "Strawberry___healthy": {
    "n": 72,
@@ -128,39 +139,39 @@
   },
   "Strawberry___Leaf_scorch": {
    "n": 129,
-   "acc": 1.0
+   "acc": 0.9922480620155039
   },
   "Tomato___Bacterial_spot": {
    "n": 285,
-   "acc": 0.8982456140350877
+   "acc": 0.8842105263157894
   },
   "Tomato___Early_blight": {
    "n": 145,
-   "acc": 0.7586206896551724
+   "acc": 0.7655172413793103
   },
   "Tomato___healthy": {
    "n": 251,
-   "acc": 1.0
+   "acc": 0.9960159362549801
   },
   "Tomato___Late_blight": {
    "n": 281,
-   "acc": 0.8790035587188612
+   "acc": 0.896797153024911
   },
   "Tomato___Leaf_Mold": {
    "n": 142,
-   "acc": 0.9014084507042254
+   "acc": 0.8873239436619719
   },
   "Tomato___Septoria_leaf_spot": {
    "n": 262,
-   "acc": 0.9236641221374046
+   "acc": 0.9351145038167938
   },
   "Tomato___Spider_mites Two-spotted_spider_mite": {
    "n": 250,
-   "acc": 0.968
+   "acc": 0.948
   },
   "Tomato___Target_Spot": {
    "n": 226,
-   "acc": 0.8539823008849557
+   "acc": 0.9026548672566371
   },
   "Tomato___Tomato_mosaic_virus": {
    "n": 57,
@@ -168,8 +179,52 @@
   },
   "Tomato___Tomato_Yellow_Leaf_Curl_Virus": {
    "n": 853,
-   "acc": 0.9249706916764361
+   "acc": 0.9202813599062134
+  },
+  "Cotton___Bacterial_blight": {
+   "n": 38,
+   "acc": 1.0
+  },
+  "Cotton___Herbicide_damage": {
+   "n": 42,
+   "acc": 1.0
+  },
+  "Cotton___Jassids": {
+   "n": 34,
+   "acc": 0.9411764705882353
+  },
+  "Cotton___Leaf_curl_virus": {
+   "n": 65,
+   "acc": 0.9230769230769231
+  },
+  "Cotton___Leaf_reddening": {
+   "n": 87,
+   "acc": 0.9655172413793104
+  },
+  "Cotton___Leaf_variegation": {
+   "n": 17,
+   "acc": 0.9411764705882353
+  },
+  "Cotton___healthy": {
+   "n": 39,
+   "acc": 0.9487179487179487
+  },
+  "Other___not_leaf": {
+   "n": 525,
+   "acc": 1.0
+  },
+  "Wheat___Septoria": {
+   "n": 15,
+   "acc": 1.0
+  },
+  "Wheat___Stripe_rust": {
+   "n": 31,
+   "acc": 0.967741935483871
+  },
+  "Wheat___healthy": {
+   "n": 15,
+   "acc": 1.0
   }
  },
- "seconds": 8878.119861125946
+ "seconds": 5518.297158479691
 }
