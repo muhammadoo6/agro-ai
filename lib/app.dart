@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'core/app_scope.dart';
 import 'core/theme/app_theme.dart';
 import 'features/home/main_shell.dart';
+import 'features/home/onboarding_screen.dart';
 
 /// Танзимоти умумии барнома.
 class AgroApp extends StatelessWidget {
@@ -30,7 +31,7 @@ class AgroApp extends StatelessWidget {
           locale: const Locale('ru'),
           supportedLocales: const [Locale('ru'), Locale('en')],
           localizationsDelegates: GlobalMaterialLocalizations.delegates,
-          home: const MainShell(),
+          home: settings.onboarded ? const MainShell() : const OnboardingScreen(),
         ),
       ),
     );

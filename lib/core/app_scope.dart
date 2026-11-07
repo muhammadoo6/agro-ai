@@ -7,6 +7,7 @@ import '../services/ai_service.dart';
 import '../services/backup_service.dart';
 import '../services/notification_service.dart';
 import '../services/offline/offline_diagnoser.dart';
+import '../services/weather_service.dart';
 import 'app_config.dart';
 
 /// Ҳамаи хидматҳои барнома дар як ҷо.
@@ -20,6 +21,7 @@ class AppServices {
     required this.knowledge,
     this.config = const AppConfig(AppEdition.online),
     this.offline,
+    this.weather,
   });
 
   final FarmRepository farm;
@@ -34,6 +36,9 @@ class AppServices {
 
   /// Своя модель + своя база болезней (есть только в версии offline).
   final OfflineDiagnoser? offline;
+
+  /// Погода (только online; в тестах — null).
+  final WeatherService? weather;
 }
 
 /// Дастрасӣ ба [AppServices] аз ҳар виҷет: `AppScope.of(context)`.

@@ -5,6 +5,7 @@ import '../../core/localization/app_strings.dart';
 import '../../core/validation/validators.dart';
 import '../../data/repositories/settings_repository.dart';
 import '../../shared/widgets/common.dart';
+import '../home/home_screen.dart' show loadDemoFarm;
 import 'data_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -222,6 +223,15 @@ class SettingsScreen extends StatelessWidget {
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => Navigator.of(context)
                     .push(MaterialPageRoute(builder: (_) => const DataScreen())),
+              ),
+            ),
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.auto_awesome, color: Color(0xFFF9A825)),
+                title: Text(l.t('demo_title')),
+                subtitle: Text(l.t('demo_desc')),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => loadDemoFarm(context),
               ),
             ),
             SectionHeader(l.t('about')),

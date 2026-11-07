@@ -16,6 +16,7 @@ class AppSettings {
     this.notificationsEnabled = true,
     this.themeMode = ThemeMode.system,
     this.onboarded = false,
+    this.weatherCity = 'Душанбе',
   });
 
   final String languageCode;
@@ -28,6 +29,7 @@ class AppSettings {
   final bool notificationsEnabled;
   final ThemeMode themeMode;
   final bool onboarded;
+  final String weatherCity;
 
   /// Ключ выбранного провайдера.
   String get activeKey => aiProvider == AiProvider.gemini ? geminiKey : apiKey;
@@ -41,6 +43,7 @@ class AppSettings {
     bool? notificationsEnabled,
     ThemeMode? themeMode,
     bool? onboarded,
+    String? weatherCity,
   }) =>
       AppSettings(
         languageCode: languageCode ?? this.languageCode,
@@ -50,6 +53,7 @@ class AppSettings {
         notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
         themeMode: themeMode ?? this.themeMode,
         onboarded: onboarded ?? this.onboarded,
+        weatherCity: weatherCity ?? this.weatherCity,
       );
 
   Map<String, dynamic> toJson() => {
@@ -60,6 +64,7 @@ class AppSettings {
         'notificationsEnabled': notificationsEnabled,
         'themeMode': themeMode.name,
         'onboarded': onboarded,
+        'weatherCity': weatherCity,
       };
 
   factory AppSettings.fromJson(Map<String, dynamic> j) => AppSettings(
@@ -76,6 +81,7 @@ class AppSettings {
           orElse: () => ThemeMode.system,
         ),
         onboarded: j['onboarded'] == true,
+        weatherCity: (j['weatherCity'] as String?) ?? 'Душанбе',
       );
 }
 

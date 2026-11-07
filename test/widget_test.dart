@@ -19,6 +19,8 @@ void main() {
           notifications: NoopNotificationService(),
           loadModel: false,
         ));
+    await tester.runAsync(() => services!.settings
+        .update(services.settings.value.copyWith(onboarded: true)));
     await tester.pumpWidget(AgroApp(services: services!));
     await tester.pumpAndSettle();
     return services;
@@ -26,7 +28,8 @@ void main() {
 
   testWidgets('app starts on Tajik home screen', (tester) async {
     await pumpApp(tester);
-    expect(find.text('Хуш омадед, деҳқон!'), findsOneWidget);
+    expect(find.textContaining('Хоҷагии шумо имрӯз'), findsOneWidget);
+    expect(find.text('Хоҷагии намунавӣ'), findsOneWidget);
     expect(navItem('Қитъаҳо'), findsOneWidget);
   });
 
@@ -78,6 +81,6 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Русский'));
     await tester.pumpAndSettle();
-    expect(find.text('Добро пожаловать, фермер!'), findsOneWidget);
+    expect(find.textContaining('Ваше хозяйство сегодня'), findsOneWidget);
   });
 }

@@ -16,6 +16,7 @@ import 'features/knowledge/crop_guide.dart';
 import 'services/ai_service.dart';
 import 'services/backup_service.dart';
 import 'services/error_log.dart';
+import 'services/weather_service.dart';
 import 'services/notification_service.dart';
 import 'services/offline/disease_base.dart';
 import 'services/offline/offline_diagnoser.dart';
@@ -155,5 +156,7 @@ Future<AppServices> bootstrap({
     knowledge: results[2] as KnowledgeBase,
     config: cfg,
     offline: offline,
+    // Погода — только online и не в тестах (store передан в тестах).
+    weather: (!cfg.isOffline && store == null) ? WeatherService() : null,
   );
 }

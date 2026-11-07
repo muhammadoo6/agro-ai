@@ -13,6 +13,7 @@ import '../../data/remote/claude_api_client.dart';
 import '../../models/plant_scan.dart';
 import '../../services/ai_service.dart';
 import '../../shared/widgets/common.dart';
+import '../../shared/widgets/scanning_preview.dart';
 
 class PlantScanScreen extends StatefulWidget {
   const PlantScanScreen({super.key});
@@ -25,6 +26,7 @@ class _PlantScanScreenState extends State<PlantScanScreen> {
   final _cropHint = TextEditingController();
   String? _plotId;
   bool _busy = false;
+  File? _preview;
 
   @override
   void dispose() {
@@ -54,6 +56,7 @@ class _PlantScanScreenState extends State<PlantScanScreen> {
     setState(() => _busy = true);
     try {
       final saved = await _persistImage(picked);
+      if (mounted) setState(() => _preview = saved);
       final settings = s.settings.value;
       PlantScan result;
       final offline = s.offline;
@@ -109,7 +112,12 @@ class _PlantScanScreenState extends State<PlantScanScreen> {
     } catch (e) {
       if (mounted) showSnack(context, l.f('scan_error', ['$e']));
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _preview = null;
+        });
+      }
     }
   }
 
@@ -200,7 +208,9 @@ class _PlantScanScreenState extends State<PlantScanScreen> {
                         ),
                       ],
                       const SizedBox(height: 16),
-                      if (_busy)
+                      if (_busy && _preview != null)
+                        ScanningPreview(file: _preview!, label: l.t('analyzing'))
+                      else if (_busy)
                         Column(
                           children: [
                             const CircularProgressIndicator(),

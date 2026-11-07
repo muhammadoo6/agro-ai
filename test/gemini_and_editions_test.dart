@@ -117,6 +117,8 @@ void main() {
           config: const AppConfig(AppEdition.offline),
           classifier: _Fake(),
         ));
+    await tester.runAsync(() => services!.settings
+        .update(services.settings.value.copyWith(onboarded: true)));
     await tester.pumpWidget(AgroApp(services: services!));
     await tester.pumpAndSettle();
     expect(services.offline, isNotNull);
@@ -147,6 +149,8 @@ void main() {
           loadModel: false,
           config: const AppConfig(AppEdition.online),
         ));
+    await tester.runAsync(() => services!.settings
+        .update(services.settings.value.copyWith(onboarded: true)));
     await tester.pumpWidget(AgroApp(services: services!));
     await tester.pumpAndSettle();
     await tester.tap(find.byIcon(Icons.settings_outlined));

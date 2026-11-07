@@ -353,6 +353,28 @@ class FarmRepository extends ChangeNotifier {
     return FinanceSummary(income: inc, expense: exp, expenseByCategory: byCat);
   }
 
+  /// Даромад/хароҷот барои [months] моҳи охир (аз кӯҳна ба нав).
+  List<({DateTime month, double income, double expense})> monthlyTotals(
+      {int months = 6, DateTime? now}) {
+    final t = now ?? DateTime.now();
+    final out = <({DateTime month, double income, double expense})>[];
+    for (var k = months - 1; k >= 0; k--) {
+      final m = DateTime(t.year, t.month - k, 1);
+      final next = DateTime(m.year, m.month + 1, 1);
+      double inc = 0, exp = 0;
+      for (final x in _transactions) {
+        if (x.date.isBefore(m) || !x.date.isBefore(next)) continue;
+        if (x.type == TransactionType.income) {
+          inc += x.amount;
+        } else {
+          exp += x.amount;
+        }
+      }
+      out.add((month: m, income: inc, expense: exp));
+    }
+    return out;
+  }
+
   // ---------- ҳосил ----------
 
   List<Harvest> get harvestsSorted =>

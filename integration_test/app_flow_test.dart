@@ -19,6 +19,7 @@ void main() {
       notifications: NoopNotificationService(),
           loadModel: false,
     );
+    await services.settings.update(services.settings.value.copyWith(onboarded: true));
     await tester.pumpWidget(AgroApp(services: services));
     await tester.pumpAndSettle();
 

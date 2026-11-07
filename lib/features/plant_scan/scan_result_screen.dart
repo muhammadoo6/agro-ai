@@ -8,6 +8,7 @@ import '../../core/localization/labels.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/formatters.dart';
 import '../../models/plant_scan.dart';
+import '../../shared/widgets/charts.dart';
 import '../../shared/widgets/common.dart';
 
 class ScanResultScreen extends StatelessWidget {
@@ -87,21 +88,15 @@ class ScanResultScreen extends StatelessWidget {
           Text(scan.diagnosis, style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 4),
           Text(formatDateTime(scan.date), style: Theme.of(context).textTheme.bodySmall),
-          if (!offline) ...[
+          if (!offline && scan.confidence > 0) ...[
             const SizedBox(height: 12),
-            Row(
-              children: [
-                Text('${l.t('confidence')}: '),
-                Expanded(
-                  child: LinearProgressIndicator(
-                    value: scan.confidence,
-                    color: statusColor,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Text('${(scan.confidence * 100).round()}%'),
-              ],
+            Center(
+              child: Column(
+                children: [
+                  ConfidenceGauge(value: scan.confidence, color: statusColor, size: 150),
+                  Text(l.t('confidence'), style: Theme.of(context).textTheme.labelMedium),
+                ],
+              ),
             ),
           ],
           if (offline) ...[
