@@ -95,26 +95,26 @@ jobs:
       - name: Verify signature and permissions
         run: |
           BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
-          "$BT/apksigner" verify --print-certs build/app/outputs/flutter-apk/app-online-arm64-v8a-release.apk | grep -E "DN|SHA-256"
-          echo "--- online permissions"; "$BT/aapt2" dump permissions build/app/outputs/flutter-apk/app-online-arm64-v8a-release.apk
-          echo "--- offline permissions"; "$BT/aapt2" dump permissions build/app/outputs/flutter-apk/app-offline-arm64-v8a-release.apk
-          echo "--- offline model in apk"; unzip -l build/app/outputs/flutter-apk/app-offline-arm64-v8a-release.apk | grep -E "models/|libtensorflowlite" || true
-          echo "--- online has no model"; unzip -l build/app/outputs/flutter-apk/app-online-arm64-v8a-release.apk | grep -c "models/plant" || true
+          "$BT/apksigner" verify --print-certs build/app/outputs/flutter-apk/app-arm64-v8a-online-release.apk | grep -E "DN|SHA-256"
+          echo "--- online permissions"; "$BT/aapt2" dump permissions build/app/outputs/flutter-apk/app-arm64-v8a-online-release.apk
+          echo "--- offline permissions"; "$BT/aapt2" dump permissions build/app/outputs/flutter-apk/app-arm64-v8a-offline-release.apk
+          echo "--- offline model in apk"; unzip -l build/app/outputs/flutter-apk/app-arm64-v8a-offline-release.apk | grep -E "models/|libtensorflowlite" || true
+          echo "--- online has no model"; unzip -l build/app/outputs/flutter-apk/app-arm64-v8a-online-release.apk | grep -c "models/plant" || true
 
       - uses: actions/upload-artifact@v4
         with:
           name: agro-ai-online-arm64
-          path: build/app/outputs/flutter-apk/app-online-arm64-v8a-release.apk
+          path: build/app/outputs/flutter-apk/app-arm64-v8a-online-release.apk
 
       - uses: actions/upload-artifact@v4
         with:
           name: agro-ai-offline-arm64
-          path: build/app/outputs/flutter-apk/app-offline-arm64-v8a-release.apk
+          path: build/app/outputs/flutter-apk/app-arm64-v8a-offline-release.apk
 
       - uses: actions/upload-artifact@v4
         with:
           name: agro-ai-armv7
-          path: build/app/outputs/flutter-apk/app-*-armeabi-v7a-release.apk
+          path: build/app/outputs/flutter-apk/app-armeabi-v7a-*-release.apk
 
       - uses: actions/upload-artifact@v4
         with:
