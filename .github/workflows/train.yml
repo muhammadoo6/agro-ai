@@ -1,0 +1,46 @@
+name: train-model
+
+# Обучение офлайн-модели (запускается вручную).
+on:
+  workflow_dispatch:
+    inputs:
+      epochs_head:
+        description: 'Эпохи (только голова)'
+        default: '4'
+      epochs_fine:
+        description: 'Эпохи (дообучение)'
+        default: '3'
+      limit:
+        description: 'Пробный прогон: сколько фото (0 = все)'
+        default: '0'
+
+permissions:
+  contents: read
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: pip install "tensorflow-cpu>=2.16,<2.21" "tensorflow-datasets>=4.9" "numpy<2.2"
+
+      - name: Train
+        env:
+          OUT_DIR: out
+          EPOCHS_HEAD: ${{ inputs.epochs_head }}
+          EPOCHS_FINE: ${{ inputs.epochs_fine }}
+          LIMIT: ${{ inputs.limit }}
+          TF_CPP_MIN_LOG_LEVEL: '2'
+        run: python tools/train/train.py
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plant-model
+          path: out/
