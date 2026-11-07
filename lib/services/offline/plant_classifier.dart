@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
@@ -6,10 +7,19 @@ import 'package:flutter/services.dart';
 import 'package:image/image.dart' as img;
 import 'package:tflite_flutter/tflite_flutter.dart';
 
-/// Классификатор фото листа: вероятности по классам модели.
+/// Результат: вероятности по классам и доля «листовых» (зелёно-жёлтых) пикселей.
+class ClassifyResult {
+  const ClassifyResult(this.probs, {this.leafRatio = 1.0});
+  final List<double> probs;
+
+  /// 0..1 — сколько на фото цвета живого листа. Клубень, земля, рука ≈ 0.
+  final double leafRatio;
+}
+
+/// Классификатор фото листа.
 abstract class PlantClassifier {
   List<String> get labels;
-  Future<List<double>> classify(Uint8List imageBytes);
+  Future<ClassifyResult> classify(Uint8List imageBytes);
 }
 
 /// Модель TFLite внутри приложения (assets/models/).
@@ -40,12 +50,12 @@ class TfliteClassifier implements PlantClassifier {
   }
 
   @override
-  Future<List<double>> classify(Uint8List imageBytes) async {
+  Future<ClassifyResult> classify(Uint8List imageBytes) async {
     // Декодирование и уменьшение — в отдельном изоляте, чтобы не тормозил экран.
     final input = await compute(_preprocess, (imageBytes, inputSize));
     final output = [List<double>.filled(labels.length, 0)];
     _interpreter.run(input.reshape([1, inputSize, inputSize, 3]), output);
-    return output.first;
+    return ClassifyResult(output.first, leafRatio: leafColorRatio(input));
   }
 
   void close() => _interpreter.close();
@@ -68,6 +78,37 @@ Float32List _preprocess((Uint8List, int) args) {
     }
   }
   return out;
+}
+
+/// Доля пикселей цвета листа: оттенок от жёлто-зелёного до сине-зелёного,
+/// достаточно насыщенный и не слишком тёмный. Считается по центру кадра.
+double leafColorRatio(Float32List rgb) {
+  final n = rgb.length ~/ 3;
+  if (n == 0) return 0;
+  final side = math.sqrt(n).round();
+  final m = side ~/ 8;
+  var leaf = 0, total = 0;
+  for (var y = m; y < side - m; y++) {
+    for (var x = m; x < side - m; x++) {
+      final i = (y * side + x) * 3;
+      final r = rgb[i] / 255, g = rgb[i + 1] / 255, b = rgb[i + 2] / 255;
+      final mx = math.max(r, math.max(g, b)), mn = math.min(r, math.min(g, b));
+      final d = mx - mn;
+      total++;
+      if (mx < 0.12 || d / mx < 0.22) continue; // тёмное или серое
+      double h;
+      if (mx == r) {
+        h = 60 * (((g - b) / d) % 6);
+      } else if (mx == g) {
+        h = 60 * ((b - r) / d + 2);
+      } else {
+        h = 60 * ((r - g) / d + 4);
+      }
+      if (h < 0) h += 360;
+      if (h >= 45 && h <= 170) leaf++;
+    }
+  }
+  return total == 0 ? 0 : leaf / total;
 }
 
 @visibleForTesting

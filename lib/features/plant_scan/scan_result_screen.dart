@@ -73,7 +73,7 @@ class ScanResultScreen extends StatelessWidget {
                     ScanSource.offline => 'source_offline',
                   }),
                   color: Colors.blueGrey),
-              if (!offline)
+              if (!offline && !(scan.source == ScanSource.model && scan.confidence < 0.55))
                 Pill(l.t(scan.isHealthy ? 'healthy' : 'unhealthy'), color: statusColor),
               if (!offline && scan.severity != Severity.none)
                 Pill('${l.t('severity')}: ${l.severity(scan.severity)}',

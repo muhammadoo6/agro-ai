@@ -19,7 +19,8 @@ class _Fake implements PlantClassifier {
   @override
   List<String> get labels => const ['Potato___Late_blight', 'Potato___healthy'];
   @override
-  Future<List<double>> classify(Uint8List imageBytes) async => const [0.9, 0.1];
+  Future<ClassifyResult> classify(Uint8List imageBytes) async =>
+      const ClassifyResult([0.9, 0.1]);
 }
 
 void main() {
