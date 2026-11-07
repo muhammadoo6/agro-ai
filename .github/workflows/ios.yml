@@ -32,6 +32,9 @@ jobs:
           test -d "$APP"
           echo "--- model inside app:"; find "$APP" -name "plant_disease.tflite" -o -name "labels.json" | head
           echo "--- frameworks:"; ls "$APP/Frameworks" || true
+          echo "--- TFLite symbols (must be > 0):"
+          N=$(nm "$APP/Runner" 2>/dev/null | grep -c "TfLiteInterpreterCreate" || true)
+          echo "$N"; test "$N" -gt 0
           mkdir -p ipa/Payload
           cp -R "$APP" ipa/Payload/
           (cd ipa && zip -qr ../AgroAI-Offline-iOS-unsigned.ipa Payload)
