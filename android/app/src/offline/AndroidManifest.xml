@@ -1,0 +1,5 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <!-- Версияи офлайн ба интернет ниёз надорад: аксҳо ба ҷое фиристода намешаванд. -->
+    <uses-permission android:name="android.permission.INTERNET" tools:node="remove" />
+</manifest>

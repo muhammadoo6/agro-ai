@@ -81,33 +81,45 @@ jobs:
             echo "storeType=pkcs12"
           } > android/key.properties
 
-      - name: Build APK
-        run: flutter build apk --release --split-per-abi
-
-      - name: Build App Bundle (Google Play)
-        run: flutter build appbundle --release
-
-      - name: Verify signature
+      - name: Build APK (online + offline)
         run: |
-          APKSIGNER=$(ls "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -1)
-          "$APKSIGNER" verify --print-certs build/app/outputs/flutter-apk/app-arm64-v8a-release.apk | grep -E "DN|SHA-256"
+          flutter build apk --release --split-per-abi --flavor online
+          flutter build apk --release --split-per-abi --flavor offline
+          ls -la build/app/outputs/flutter-apk/
+
+      - name: Build App Bundles (Google Play)
+        run: |
+          flutter build appbundle --release --flavor online
+          flutter build appbundle --release --flavor offline
+
+      - name: Verify signature and permissions
+        run: |
+          BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+          "$BT/apksigner" verify --print-certs build/app/outputs/flutter-apk/app-online-arm64-v8a-release.apk | grep -E "DN|SHA-256"
+          echo "--- online permissions"; "$BT/aapt2" dump permissions build/app/outputs/flutter-apk/app-online-arm64-v8a-release.apk
+          echo "--- offline permissions"; "$BT/aapt2" dump permissions build/app/outputs/flutter-apk/app-offline-arm64-v8a-release.apk
+          echo "--- offline model in apk"; unzip -l build/app/outputs/flutter-apk/app-offline-arm64-v8a-release.apk | grep -E "models/|libtensorflowlite" || true
+          echo "--- online has no model"; unzip -l build/app/outputs/flutter-apk/app-online-arm64-v8a-release.apk | grep -c "models/plant" || true
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: agro-ai-online-arm64
+          path: build/app/outputs/flutter-apk/app-online-arm64-v8a-release.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: agro-ai-offline-arm64
+          path: build/app/outputs/flutter-apk/app-offline-arm64-v8a-release.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: agro-ai-armv7
+          path: build/app/outputs/flutter-apk/app-*-armeabi-v7a-release.apk
 
       - uses: actions/upload-artifact@v4
         with:
           name: agro-ai-aab
-          path: build/app/outputs/bundle/release/app-release.aab
-
-      # Барои аксари телефонҳои муосир (64-бит)
-      - uses: actions/upload-artifact@v4
-        with:
-          name: agro-ai-arm64
-          path: build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
-
-      # Барои телефонҳои кӯҳнаи 32-бита
-      - uses: actions/upload-artifact@v4
-        with:
-          name: agro-ai-armv7
-          path: build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
+          path: build/app/outputs/bundle/*/*.aab
 
       - name: Fail if analyze or tests failed
         if: ${{ steps.analyze.outcome == 'failure' || steps.test.outcome == 'failure' }}

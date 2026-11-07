@@ -1,6 +1,8 @@
 import 'json_utils.dart';
 
-enum ScanSource { ai, offline }
+/// ai — внешний AI (онлайн), model — своя модель в телефоне,
+/// offline — только советы из справочника (без распознавания).
+enum ScanSource { ai, model, offline }
 
 enum Severity { none, low, medium, high }
 

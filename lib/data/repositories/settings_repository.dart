@@ -4,26 +4,40 @@ import 'package:flutter/material.dart';
 
 import '../local/local_store.dart';
 
+/// Внешний AI для онлайн-версии.
+enum AiProvider { gemini, claude }
+
 class AppSettings {
   const AppSettings({
     this.languageCode = 'tg',
     this.apiKey = '',
+    this.geminiKey = '',
+    this.aiProvider = AiProvider.gemini,
     this.notificationsEnabled = true,
     this.themeMode = ThemeMode.system,
     this.onboarded = false,
   });
 
   final String languageCode;
+  /// Ключ Claude API (платный).
   final String apiKey;
+
+  /// Ключ Google Gemini API (есть бесплатный уровень).
+  final String geminiKey;
+  final AiProvider aiProvider;
   final bool notificationsEnabled;
   final ThemeMode themeMode;
   final bool onboarded;
 
-  bool get hasApiKey => apiKey.trim().isNotEmpty;
+  /// Ключ выбранного провайдера.
+  String get activeKey => aiProvider == AiProvider.gemini ? geminiKey : apiKey;
+  bool get hasApiKey => activeKey.trim().isNotEmpty;
 
   AppSettings copyWith({
     String? languageCode,
     String? apiKey,
+    String? geminiKey,
+    AiProvider? aiProvider,
     bool? notificationsEnabled,
     ThemeMode? themeMode,
     bool? onboarded,
@@ -31,6 +45,8 @@ class AppSettings {
       AppSettings(
         languageCode: languageCode ?? this.languageCode,
         apiKey: apiKey ?? this.apiKey,
+        geminiKey: geminiKey ?? this.geminiKey,
+        aiProvider: aiProvider ?? this.aiProvider,
         notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
         themeMode: themeMode ?? this.themeMode,
         onboarded: onboarded ?? this.onboarded,
@@ -39,6 +55,8 @@ class AppSettings {
   Map<String, dynamic> toJson() => {
         'languageCode': languageCode,
         'apiKey': apiKey,
+        'geminiKey': geminiKey,
+        'aiProvider': aiProvider.name,
         'notificationsEnabled': notificationsEnabled,
         'themeMode': themeMode.name,
         'onboarded': onboarded,
@@ -47,6 +65,11 @@ class AppSettings {
   factory AppSettings.fromJson(Map<String, dynamic> j) => AppSettings(
         languageCode: (j['languageCode'] as String?) ?? 'tg',
         apiKey: (j['apiKey'] as String?) ?? '',
+        geminiKey: (j['geminiKey'] as String?) ?? '',
+        aiProvider: AiProvider.values.firstWhere(
+          (p) => p.name == j['aiProvider'],
+          orElse: () => AiProvider.gemini,
+        ),
         notificationsEnabled: j['notificationsEnabled'] != false,
         themeMode: ThemeMode.values.firstWhere(
           (m) => m.name == j['themeMode'],

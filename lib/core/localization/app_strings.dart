@@ -181,6 +181,22 @@ class L10n {
       'kg': 'кг',
       // скан
       'plant_scan': 'Скани растанӣ',
+      'scan_intro_offline':
+          'Аз барг акси равшан гиред. Модели худии барнома бе интернет бемориро муайян мекунад.',
+      'model_info': 'Модел {0} бемориро медонад. Зироатҳо: {1}.',
+      'model_missing': 'Модели офлайн дар ин сохт нест.',
+      'source_model': 'Модели худӣ (офлайн)',
+      'err_gemini_key': 'Калиди Gemini бояд бо AIza сар шавад',
+      'ai_provider': 'Хизматрасони AI',
+      'provider_gemini': 'Gemini (ройгон)',
+      'provider_claude': 'Claude (пулакӣ)',
+      'gemini_key': 'Калиди Gemini API',
+      'gemini_key_help':
+          'Калиди ройгонро дар aistudio.google.com/apikey гиред. Дар сатҳи ройгон Google метавонад дархостҳоро барои беҳтар кардани хизматҳояш истифода барад.',
+      'claude_key_help': 'Калидро дар console.anthropic.com гиред (пулакӣ).',
+      'offline_model_section': 'Модели офлайн',
+      'edition_offline': 'Версияи офлайн: ҳамаи таҳлил дар телефон, акс ба ҷое фиристода намешавад.',
+      'data_source': 'Манбаи маълумот: PlantVillage (CC BY-SA).',
       'scan_intro':
           'Аз барг ё мевае, ки нишонаи беморӣ дорад, акси равшан гиред. AI бемориро муайян карда, тавсия медиҳад.',
       'take_photo': 'Акс гирифтан',
@@ -394,6 +410,22 @@ class L10n {
       'yield_per_ha': 'Урожайность: {0} кг/га',
       'kg': 'кг',
       'plant_scan': 'Скан растения',
+      'scan_intro_offline':
+          'Сделайте чёткое фото листа. Собственная модель приложения определит болезнь без интернета.',
+      'model_info': 'Модель знает {0} болезней. Культуры: {1}.',
+      'model_missing': 'В этой сборке нет офлайн-модели.',
+      'source_model': 'Своя модель (офлайн)',
+      'err_gemini_key': 'Ключ Gemini должен начинаться с AIza',
+      'ai_provider': 'AI-сервис',
+      'provider_gemini': 'Gemini (бесплатно)',
+      'provider_claude': 'Claude (платно)',
+      'gemini_key': 'Ключ Gemini API',
+      'gemini_key_help':
+          'Бесплатный ключ: aistudio.google.com/apikey. На бесплатном уровне Google может использовать запросы для улучшения своих сервисов.',
+      'claude_key_help': 'Ключ: console.anthropic.com (платно).',
+      'offline_model_section': 'Офлайн-модель',
+      'edition_offline': 'Офлайн-версия: весь анализ в телефоне, фото никуда не отправляются.',
+      'data_source': 'Источник данных: PlantVillage (CC BY-SA).',
       'scan_intro':
           'Сделайте чёткое фото листа или плода с признаками болезни. AI определит проблему и даст рекомендации.',
       'take_photo': 'Сделать фото',

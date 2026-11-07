@@ -51,4 +51,12 @@ class Validators {
     if (!s.startsWith('sk-ant-') || s.length < 20) return 'err_api_key';
     return null;
   }
+
+  /// Ключи Google AI Studio начинаются с «AIza» (39 символов).
+  static String? geminiKey(String? v) {
+    if (v == null || v.trim().isEmpty) return null;
+    final s = v.trim();
+    if (!s.startsWith('AIza') || s.length < 30 || s.contains(' ')) return 'err_gemini_key';
+    return null;
+  }
 }

@@ -56,11 +56,26 @@ class _PlantScanScreenState extends State<PlantScanScreen> {
       final saved = await _persistImage(picked);
       final settings = s.settings.value;
       PlantScan result;
+      final offline = s.offline;
+      if (s.config.isOffline && offline != null) {
+        // Своя модель в телефоне — без интернета.
+        result = await offline.diagnose(
+          imageBytes: await saved.readAsBytes(),
+          imagePath: saved.path,
+          lang: settings.languageCode,
+          cropHint: _cropHint.text,
+          plotId: _plotId,
+        );
+        await s.farm.saveScan(result);
+        if (mounted) await AppRouter.scanResult(context, result);
+        return;
+      }
       try {
         result = await s.ai.analyze(
           image: saved,
           savedImagePath: saved.path,
-          apiKey: settings.apiKey,
+          apiKey: settings.activeKey,
+          provider: settings.aiProvider,
           lang: settings.languageCode,
           cropHint: _cropHint.text,
           plotId: _plotId,
@@ -111,8 +126,29 @@ class _PlantScanScreenState extends State<PlantScanScreen> {
                     children: [
                       const Icon(Icons.eco, size: 48, color: Colors.green),
                       const SizedBox(height: 8),
-                      Text(l.t('scan_intro'), textAlign: TextAlign.center),
-                      if (!s.settings.value.hasApiKey) ...[
+                      Text(l.t(s.config.isOffline ? 'scan_intro_offline' : 'scan_intro'),
+                          textAlign: TextAlign.center),
+                      if (s.config.isOffline && s.offline != null) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          l.f('model_info', [
+                            s.offline!.diseaseCount,
+                            s.offline!.cropNames(s.settings.value.languageCode).join(', '),
+                          ]),
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                      if (s.config.isOffline && s.offline == null) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          l.t('model_missing'),
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.error),
+                        ),
+                      ],
+                      if (!s.config.isOffline && !s.settings.value.hasApiKey) ...[
                         const SizedBox(height: 8),
                         Text(
                           l.t('offline_note'),
@@ -215,12 +251,14 @@ class _PlantScanScreenState extends State<PlantScanScreen> {
                             if (sc.cropName?.isNotEmpty == true) sc.cropName!,
                           ].join(' · ')),
                           trailing: Icon(
-                            sc.source == ScanSource.offline
-                                ? Icons.cloud_off_outlined
+                            sc.source == ScanSource.offline ||
+                                    (sc.source == ScanSource.model && sc.confidence < 0.55)
+                                ? Icons.help_outline
                                 : sc.isHealthy
                                     ? Icons.check_circle
                                     : Icons.warning_amber_rounded,
-                            color: sc.source == ScanSource.offline
+                            color: sc.source == ScanSource.offline ||
+                                    (sc.source == ScanSource.model && sc.confidence < 0.55)
                                 ? null
                                 : sc.isHealthy
                                     ? Colors.green

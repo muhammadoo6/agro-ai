@@ -3,17 +3,22 @@ import 'dart:io';
 
 import '../core/utils/id.dart';
 import '../data/remote/claude_api_client.dart';
+import '../data/remote/gemini_api_client.dart';
+import '../data/repositories/settings_repository.dart' show AiProvider;
 import '../features/knowledge/crop_guide.dart';
 import '../models/plant_scan.dart';
 
-/// Таҳлили акси растанӣ.
+/// Таҳлили акси растанӣ тавассути AI-и беруна (версияи online).
 ///
-/// Агар калиди API бошад — тавассути Claude; вагарна маслиҳати офлайн аз
-/// донишнома бармегардад.
+/// Провайдер: Gemini (ройгон) ё Claude. Агар калид набошад — маслиҳати офлайн
+/// аз донишнома.
 class AiService {
-  AiService({ClaudeApiClient? client}) : _client = client ?? ClaudeApiClient();
+  AiService({ClaudeApiClient? client, GeminiApiClient? gemini})
+      : _client = client ?? ClaudeApiClient(),
+        _gemini = gemini ?? GeminiApiClient();
 
   final ClaudeApiClient _client;
+  final GeminiApiClient _gemini;
 
   static const _schema = {
     'type': 'object',
@@ -78,6 +83,7 @@ class AiService {
     required String savedImagePath,
     required String apiKey,
     required String lang,
+    AiProvider provider = AiProvider.claude,
     String? cropHint,
     String? plotId,
     KnowledgeBase? knowledge,
@@ -98,14 +104,23 @@ class AiService {
       prompt.write(' Фермер говорит, что это: ${cropHint.trim()}.');
     }
 
-    final j = await _client.analyzeImage(
-      apiKey: apiKey.trim(),
-      base64Image: base64Encode(bytes),
-      mediaType: _mediaType(image.path),
-      system: _system(lang),
-      prompt: prompt.toString(),
-      schema: _schema,
-    );
+    final j = provider == AiProvider.gemini
+        ? await _gemini.analyzeImage(
+            apiKey: apiKey.trim(),
+            base64Image: base64Encode(bytes),
+            mediaType: _mediaType(image.path),
+            system: _system(lang),
+            prompt: prompt.toString(),
+            schema: _schema,
+          )
+        : await _client.analyzeImage(
+            apiKey: apiKey.trim(),
+            base64Image: base64Encode(bytes),
+            mediaType: _mediaType(image.path),
+            system: _system(lang),
+            prompt: prompt.toString(),
+            schema: _schema,
+          );
     return fromAiJson(
       j,
       imagePath: savedImagePath,

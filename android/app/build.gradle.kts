@@ -41,6 +41,24 @@ android {
         versionName = flutter.versionName
     }
 
+    buildFeatures {
+        resValues = true
+    }
+
+    // Ду версия: online (AI-и беруна) ва offline (модели худӣ, бе интернет).
+    flavorDimensions += "edition"
+    productFlavors {
+        create("online") {
+            dimension = "edition"
+            resValue("string", "app_name", "Agro AI")
+        }
+        create("offline") {
+            dimension = "edition"
+            applicationIdSuffix = ".offline"
+            resValue("string", "app_name", "Agro AI Offline")
+        }
+    }
+
     signingConfigs {
         if (keystorePropertiesFile.exists()) {
             create("release") {

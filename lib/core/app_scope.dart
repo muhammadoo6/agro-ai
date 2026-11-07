@@ -6,6 +6,8 @@ import '../features/knowledge/crop_guide.dart';
 import '../services/ai_service.dart';
 import '../services/backup_service.dart';
 import '../services/notification_service.dart';
+import '../services/offline/offline_diagnoser.dart';
+import 'app_config.dart';
 
 /// Ҳамаи хидматҳои барнома дар як ҷо.
 class AppServices {
@@ -16,6 +18,8 @@ class AppServices {
     required this.notifications,
     required this.backup,
     required this.knowledge,
+    this.config = const AppConfig(AppEdition.online),
+    this.offline,
   });
 
   final FarmRepository farm;
@@ -24,6 +28,12 @@ class AppServices {
   final NotificationService notifications;
   final BackupService backup;
   final KnowledgeBase knowledge;
+
+  /// Версия приложения: online (внешний AI) или offline (своя модель).
+  final AppConfig config;
+
+  /// Своя модель + своя база болезней (есть только в версии offline).
+  final OfflineDiagnoser? offline;
 }
 
 /// Дастрасӣ ба [AppServices] аз ҳар виҷет: `AppScope.of(context)`.

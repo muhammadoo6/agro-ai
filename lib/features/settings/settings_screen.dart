@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/app_scope.dart';
 import '../../core/localization/app_strings.dart';
 import '../../core/validation/validators.dart';
+import '../../data/repositories/settings_repository.dart';
 import '../../shared/widgets/common.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -63,20 +64,70 @@ class SettingsScreen extends StatelessWidget {
                 ),
               ),
             ),
-            SectionHeader(l.t('ai_section')),
-            Card(
-              child: ListTile(
-                leading: Icon(
-                  settings.hasApiKey ? Icons.key : Icons.key_off_outlined,
-                  color: settings.hasApiKey ? Colors.green : null,
+            if (s.config.isOffline) ...[
+              SectionHeader(l.t('offline_model_section')),
+              Card(
+                child: Column(
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.memory, color: Colors.green),
+                      title: Text(l.t('edition_offline')),
+                    ),
+                    if (s.offline != null)
+                      ListTile(
+                        leading: const Icon(Icons.eco_outlined),
+                        title: Text(l.f('model_info', [
+                          s.offline!.diseaseCount,
+                          s.offline!.cropNames(settings.languageCode).join(', '),
+                        ])),
+                        subtitle: Text(l.t('data_source')),
+                      )
+                    else
+                      ListTile(
+                        leading: const Icon(Icons.error_outline),
+                        title: Text(l.t('model_missing')),
+                      ),
+                  ],
                 ),
-                title: Text(l.t('api_key')),
-                subtitle: Text(l.t(
-                    settings.hasApiKey ? 'api_key_set' : 'api_key_not_set')),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => _editApiKey(context),
               ),
-            ),
+            ] else ...[
+              SectionHeader(l.t('ai_section')),
+              Card(
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+                      child: SegmentedButton<AiProvider>(
+                        segments: [
+                          ButtonSegment(
+                              value: AiProvider.gemini,
+                              label: Text(l.t('provider_gemini'))),
+                          ButtonSegment(
+                              value: AiProvider.claude,
+                              label: Text(l.t('provider_claude'))),
+                        ],
+                        selected: {settings.aiProvider},
+                        onSelectionChanged: (v) => s.settings
+                            .update(settings.copyWith(aiProvider: v.first)),
+                      ),
+                    ),
+                    ListTile(
+                      leading: Icon(
+                        settings.hasApiKey ? Icons.key : Icons.key_off_outlined,
+                        color: settings.hasApiKey ? Colors.green : null,
+                      ),
+                      title: Text(l.t(settings.aiProvider == AiProvider.gemini
+                          ? 'gemini_key'
+                          : 'api_key')),
+                      subtitle: Text(l.t(
+                          settings.hasApiKey ? 'api_key_set' : 'api_key_not_set')),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => _editApiKey(context),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             SectionHeader(l.t('notifications')),
             Card(
               child: SwitchListTile(
@@ -179,12 +230,13 @@ class SettingsScreen extends StatelessWidget {
   Future<void> _editApiKey(BuildContext context) async {
     final s = AppScope.of(context);
     final l = context.l;
-    final ctrl = TextEditingController(text: s.settings.value.apiKey);
+    final gemini = s.settings.value.aiProvider == AiProvider.gemini;
+    final ctrl = TextEditingController(text: s.settings.value.activeKey);
     final formKey = GlobalKey<FormState>();
     final result = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(l.t('api_key')),
+        title: Text(l.t(gemini ? 'gemini_key' : 'api_key')),
         content: Form(
           key: formKey,
           child: Column(
@@ -195,13 +247,17 @@ class SettingsScreen extends StatelessWidget {
                 obscureText: true,
                 autocorrect: false,
                 enableSuggestions: false,
-                decoration: InputDecoration(hintText: l.t('api_key_hint')),
+                decoration: InputDecoration(
+                    hintText: gemini ? 'AIza...' : l.t('api_key_hint')),
                 validator: (v) {
-                  final e = Validators.apiKey(v);
+                  final e = gemini ? Validators.geminiKey(v) : Validators.apiKey(v);
                   return e == null ? null : l.t(e);
                 },
               ),
               const SizedBox(height: 8),
+              Text(l.t(gemini ? 'gemini_key_help' : 'claude_key_help'),
+                  style: Theme.of(ctx).textTheme.bodySmall),
+              const SizedBox(height: 4),
               Text(l.t('api_key_help'),
                   style: Theme.of(ctx).textTheme.bodySmall),
             ],
@@ -230,7 +286,9 @@ class SettingsScreen extends StatelessWidget {
     );
     ctrl.dispose();
     if (result != null) {
-      await s.settings.update(s.settings.value.copyWith(apiKey: result));
+      await s.settings.update(gemini
+          ? s.settings.value.copyWith(geminiKey: result)
+          : s.settings.value.copyWith(apiKey: result));
     }
   }
 }

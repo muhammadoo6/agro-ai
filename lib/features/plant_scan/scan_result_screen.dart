@@ -66,7 +66,13 @@ class ScanResultScreen extends StatelessWidget {
             spacing: 8,
             runSpacing: 8,
             children: [
-              Pill(l.t(offline ? 'source_offline' : 'source_ai'), color: Colors.blueGrey),
+              Pill(
+                  l.t(switch (scan.source) {
+                    ScanSource.ai => 'source_ai',
+                    ScanSource.model => 'source_model',
+                    ScanSource.offline => 'source_offline',
+                  }),
+                  color: Colors.blueGrey),
               if (!offline)
                 Pill(l.t(scan.isHealthy ? 'healthy' : 'unhealthy'), color: statusColor),
               if (!offline && scan.severity != Severity.none)
