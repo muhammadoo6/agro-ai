@@ -159,7 +159,8 @@ void main() {
 
   test('settings persist separately and keep api key out of farm data', () async {
     final settings = SettingsRepository(store);
-    await settings.update(const AppSettings(languageCode: 'ru', apiKey: 'sk-ant-secret'));
+    await settings.update(const AppSettings(
+        languageCode: 'ru', apiKey: 'sk-ant-secret', aiProvider: AiProvider.claude));
     final again = SettingsRepository(store);
     await again.load();
     expect(again.value.languageCode, 'ru');
