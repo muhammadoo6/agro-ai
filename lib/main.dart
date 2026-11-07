@@ -26,6 +26,7 @@ Future<AppServices> bootstrap({
   NotificationService? notifications,
   AppConfig? config,
   PlantClassifier? classifier,
+  bool loadModel = true,
 }) async {
   final cfg = config ?? AppConfig.fromFlavor();
   final st = store ?? await FileStore.open();
@@ -39,11 +40,10 @@ Future<AppServices> bootstrap({
     notif.init(),
   ]);
 
+  // Своя модель: в offline — основная, в online — запасная (нет ключа или сети).
   OfflineDiagnoser? offline;
-  if (cfg.isOffline) {
-    final cls = classifier ?? await TfliteClassifier.tryLoad();
-    if (cls != null) offline = OfflineDiagnoser(cls, await DiseaseBase.load());
-  }
+  final cls = classifier ?? (cfg.isOffline || loadModel ? await TfliteClassifier.tryLoad() : null);
+  if (cls != null) offline = OfflineDiagnoser(cls, await DiseaseBase.load());
 
   return AppServices(
     farm: farm,

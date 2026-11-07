@@ -57,7 +57,7 @@ class _PlantScanScreenState extends State<PlantScanScreen> {
       final settings = s.settings.value;
       PlantScan result;
       final offline = s.offline;
-      if (s.config.isOffline && offline != null) {
+      if (offline != null && (s.config.isOffline || !settings.hasApiKey)) {
         // Своя модель в телефоне — без интернета.
         result = await offline.diagnose(
           imageBytes: await saved.readAsBytes(),
@@ -87,13 +87,22 @@ class _PlantScanScreenState extends State<PlantScanScreen> {
           showSnack(context, l.f('scan_error', [e.message]));
         }
         if (!e.retryable) rethrow;
-        result = AiService.offlineAdvice(
-          imagePath: saved.path,
-          lang: settings.languageCode,
-          cropHint: _cropHint.text,
-          plotId: _plotId,
-          knowledge: s.knowledge,
-        );
+        // Нет сети или лимит API — распознаём своей моделью.
+        result = offline != null
+            ? await offline.diagnose(
+                imageBytes: await saved.readAsBytes(),
+                imagePath: saved.path,
+                lang: settings.languageCode,
+                cropHint: _cropHint.text,
+                plotId: _plotId,
+              )
+            : AiService.offlineAdvice(
+                imagePath: saved.path,
+                lang: settings.languageCode,
+                cropHint: _cropHint.text,
+                plotId: _plotId,
+                knowledge: s.knowledge,
+              );
       }
       await s.farm.saveScan(result);
       if (mounted) await AppRouter.scanResult(context, result);

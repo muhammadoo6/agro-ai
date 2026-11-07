@@ -34,7 +34,5 @@ flutter:
   uses-material-design: true
   assets:
     - assets/data/
-    # Модели офлайн — танҳо дар версияи offline.
-    - path: assets/models/
-      flavors:
-        - offline
+    # Модели худӣ: дар offline асосӣ, дар online — захиравӣ (бе калид ё бе интернет).
+    - assets/models/

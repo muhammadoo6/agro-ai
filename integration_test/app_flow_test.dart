@@ -17,6 +17,7 @@ void main() {
     final services = await bootstrap(
       store: MemoryStore(),
       notifications: NoopNotificationService(),
+          loadModel: false,
     );
     await tester.pumpWidget(AgroApp(services: services));
     await tester.pumpAndSettle();

@@ -13,7 +13,12 @@ class AppConfig {
 
   bool get isOffline => edition == AppEdition.offline;
 
-  /// По умолчанию (тесты, сборка без --flavor) — online.
-  static AppConfig fromFlavor([String? flavor]) =>
-      AppConfig((flavor ?? appFlavor) == 'offline' ? AppEdition.offline : AppEdition.online);
+  /// Для сборок без flavor (iOS): `--dart-define=EDITION=offline`.
+  static const _definedEdition = String.fromEnvironment('EDITION');
+
+  /// По умолчанию (тесты, сборка без --flavor и без EDITION) — online.
+  static AppConfig fromFlavor([String? flavor]) {
+    final f = flavor ?? appFlavor ?? (_definedEdition.isEmpty ? null : _definedEdition);
+    return AppConfig(f == 'offline' ? AppEdition.offline : AppEdition.online);
+  }
 }

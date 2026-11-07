@@ -1,0 +1,43 @@
+name: ios
+
+# Сборка для iPhone без подписи (.ipa). Подписывается на Windows через Sideloadly/AltStore
+# обычным Apple ID. Запуск вручную: минуты macOS на GitHub считаются в 10 раз дороже.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ios:
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.9'
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      - name: Build iOS (offline edition, no codesign)
+        run: flutter build ios --release --no-codesign --dart-define=EDITION=offline
+
+      - name: Package IPA
+        run: |
+          APP=build/ios/iphoneos/Runner.app
+          test -d "$APP"
+          echo "--- model inside app:"; find "$APP" -name "plant_disease.tflite" -o -name "labels.json" | head
+          echo "--- frameworks:"; ls "$APP/Frameworks" || true
+          mkdir -p ipa/Payload
+          cp -R "$APP" ipa/Payload/
+          (cd ipa && zip -qr ../AgroAI-Offline-iOS-unsigned.ipa Payload)
+          ls -la AgroAI-Offline-iOS-unsigned.ipa
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: agro-ai-ios-unsigned
+          path: AgroAI-Offline-iOS-unsigned.ipa

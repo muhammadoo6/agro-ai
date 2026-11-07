@@ -113,6 +113,7 @@ void main() {
     final services = await tester.runAsync(() => bootstrap(
           store: MemoryStore(),
           notifications: NoopNotificationService(),
+          loadModel: false,
           config: const AppConfig(AppEdition.offline),
           classifier: _Fake(),
         ));
@@ -143,6 +144,7 @@ void main() {
     final services = await tester.runAsync(() => bootstrap(
           store: MemoryStore(),
           notifications: NoopNotificationService(),
+          loadModel: false,
           config: const AppConfig(AppEdition.online),
         ));
     await tester.pumpWidget(AgroApp(services: services!));
