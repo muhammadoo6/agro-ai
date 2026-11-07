@@ -29,7 +29,10 @@ jobs:
           python-version: '3.11'
 
       - name: Install
-        run: pip install "tensorflow-cpu>=2.16,<2.21" "tensorflow-datasets>=4.9" "numpy<2.2" importlib_resources
+        run: pip install "tensorflow-cpu>=2.16,<2.21" "tensorflow-datasets>=4.9" "numpy<2.2" importlib_resources pyarrow pillow
+
+      - name: Install 7-Zip (RAR)
+        run: sudo apt-get update -qq && (sudo apt-get install -y -qq 7zip || sudo apt-get install -y -qq p7zip-full p7zip-rar) && 7z i | head -3
 
       - name: Train
         env:

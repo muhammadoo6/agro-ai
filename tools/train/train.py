@@ -1,6 +1,7 @@
 """Обучение модели распознавания болезней растений для Agro AI (офлайн-версия).
 
-Данные: PlantVillage (tensorflow_datasets `plant_village`, ~54k фото, 38 классов).
+Данные: PlantVillage (tensorflow_datasets `plant_village`, ~54k фото, 38 классов),
+плюс полевые фото хлопка (SAR-CLD-2024) и пшеницы (Wheat Leaf Dataset) — см. extra_data.py.
 Берём культуры, которые выращивают в Таджикистане. Модель: MobileNetV3-Large
 (предобучена на ImageNet) + дообучение. Экспорт: TFLite (квантизация весов).
 
@@ -24,6 +25,9 @@ EPOCHS_HEAD = int(os.environ.get("EPOCHS_HEAD", "4"))
 EPOCHS_FINE = int(os.environ.get("EPOCHS_FINE", "3"))
 SEED = 42
 LIMIT = int(os.environ.get("LIMIT", "0"))  # >0 — быстрый пробный прогон
+EXTRA = os.environ.get("EXTRA", "1") == "1"  # хлопок и пшеница
+# Маленькие полевые классы повторяем до этого числа примеров (аугментации разные).
+MIN_PER_CLASS = int(os.environ.get("MIN_PER_CLASS", "600"))
 
 # Культуры, полезные для Таджикистана.
 # Сравниваем по началу названия (в TFDS: "Cherry___...", "Corn___..." и т.п.).
@@ -47,6 +51,18 @@ keep = [i for i, n in enumerate(all_names) if n.lower().startswith(KEEP_CROPS)]
 labels = [all_names[i] for i in keep]
 print(f"classes kept: {len(labels)} / {len(all_names)}")
 
+extra_x = extra_y = None
+if EXTRA:
+    import sys
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from extra_data import load_extra
+    extra_x, extra_names = load_extra(IMG)
+    extra_labels = sorted(set(extra_names))
+    labels = labels + extra_labels
+    idx = {n: i for i, n in enumerate(labels)}
+    extra_y = np.array([idx[n] for n in extra_names], dtype=np.int64)
+    print(f"extra classes: {extra_labels}; images: {len(extra_y)}")
+
 remap = np.full(len(all_names), -1, dtype=np.int64)
 for new, old in enumerate(keep):
     remap[old] = new
@@ -69,6 +85,27 @@ if LIMIT:
 train_c = select(train_raw)
 val_c = select(val_raw)
 
+if extra_x is not None:
+    # Стратифицированное разбиение 85/15 и дополнение маленьких классов повторами.
+    rng = np.random.default_rng(SEED)
+    tr_idx, va_idx = [], []
+    for c in np.unique(extra_y):
+        ids = rng.permutation(np.where(extra_y == c)[0])
+        if LIMIT:
+            ids = ids[:40]
+        n_val = max(1, int(round(len(ids) * 0.15)))
+        va_idx += ids[:n_val].tolist()
+        tr = ids[n_val:]
+        if len(tr) < MIN_PER_CLASS and not LIMIT:
+            tr = np.concatenate([tr, rng.choice(tr, MIN_PER_CLASS - len(tr), replace=True)])
+        tr_idx += tr.tolist()
+    tr_idx = rng.permutation(tr_idx)
+    ex_tr = tf.data.Dataset.from_tensor_slices((extra_x[tr_idx], extra_y[tr_idx]))
+    ex_va = tf.data.Dataset.from_tensor_slices((extra_x[va_idx], extra_y[va_idx]))
+    train_c = train_c.concatenate(ex_tr).cache()
+    val_c = val_c.concatenate(ex_va).cache()
+    del extra_x
+
 n_classes = len(labels)
 counts = np.zeros(n_classes, dtype=np.int64)
 for _, y in train_c.batch(1024):
@@ -77,7 +114,8 @@ print("train counts:", dict(zip(labels, counts.tolist())))
 print(f"cached in {time.time() - t0:.0f}s")
 
 # Веса классов против дисбаланса.
-class_weight = {i: float(counts.sum() / (n_classes * max(c, 1))) for i, c in enumerate(counts)}
+class_weight = {i: min(5.0, float(counts.sum() / (n_classes * max(c, 1))))
+                for i, c in enumerate(counts)}
 
 # Аугментации — чтобы модель меньше зависела от ровного фона лаборатории.
 augment = tf.keras.Sequential([
@@ -94,7 +132,7 @@ def to_float(x, y):
     return tf.cast(x, tf.float32), y
 
 
-train_ds = (train_c.shuffle(8000, seed=SEED).batch(BATCH)
+train_ds = (train_c.shuffle(20000, seed=SEED).batch(BATCH)
             .map(to_float, num_parallel_calls=tf.data.AUTOTUNE)
             .map(lambda x, y: (augment(x, training=True), y), num_parallel_calls=tf.data.AUTOTUNE)
             .prefetch(tf.data.AUTOTUNE))
