@@ -4,7 +4,8 @@
   зеркало на Hugging Face: Project-AgML/cotton_leaf_disease_classification_bangladesh_2 (raw).
 * Пшеница — Wheat Leaf Dataset (Getachew Hayit, Mendeley Data, doi:10.17632/wgd66f8n6h.1).
 
-load_extra(img) -> (images uint8 [N, img, img, 3], labels: list[str])
+load_extra(img) -> (images: np.ndarray[object] of JPEG bytes, labels: list[str])
+Фото хранятся сжатыми (JPEG): у облачной машины всего 8 ГБ памяти.
 """
 import io
 import os
@@ -60,6 +61,12 @@ def _download(url, path):
     return path
 
 
+def _jpeg(a):
+    buf = io.BytesIO()
+    Image.fromarray(a).save(buf, format="JPEG", quality=92)
+    return buf.getvalue()
+
+
 def _prep(data, img):
     im = Image.open(io.BytesIO(data) if isinstance(data, (bytes, bytearray)) else data)
     im = ImageOps.exif_transpose(im).convert("RGB")
@@ -77,7 +84,7 @@ def load_cotton(img):
     xs, ys = [], []
     for row in table.to_pylist():
         try:
-            xs.append(_prep(row["image"]["bytes"], img))
+            xs.append(_jpeg(_prep(row["image"]["bytes"], img)))
             ys.append(COTTON_LABELS[order[int(row["label"])]])
         except Exception as e:  # noqa: BLE001
             print("skip cotton image:", e)
@@ -102,7 +109,7 @@ def load_wheat(img):
             if label is None:
                 continue
             try:
-                xs.append(_prep(p, img))
+                xs.append(_jpeg(_prep(p, img)))
                 ys.append(label)
             except Exception as e:  # noqa: BLE001
                 print("skip wheat image:", e)
@@ -169,7 +176,7 @@ def load_other(img):
         if rng.random() < 0.3:  # часть — серые/выцветшие, как фото в плохом свете
             g = a.mean(axis=2, keepdims=True).astype(np.uint8)
             a = np.repeat(g, 3, axis=2)
-        xs.append(a)
+        xs.append(_jpeg(a))
         if len(xs) >= OTHER_MAX:
             break
     return xs, [OTHER_LABEL] * len(xs)
@@ -182,4 +189,6 @@ def load_extra(img):
         print(fn.__name__, len(a), {k: b.count(k) for k in sorted(set(b))})
         xs += a
         ys += b
-    return np.stack(xs), ys
+    arr = np.empty(len(xs), dtype=object)
+    arr[:] = xs
+    return arr, ys

@@ -77,6 +77,9 @@ def select(ds):
     ds = ds.map(lambda x, y: (tf.image.resize(x, (IMG, IMG), antialias=True), y),
                 num_parallel_calls=tf.data.AUTOTUNE)
     ds = ds.map(lambda x, y: (tf.cast(tf.clip_by_value(x, 0, 255), tf.uint8), y))
+    # Сжимаем в JPEG: в памяти ~15 КБ на фото вместо 150 КБ (у машины 8 ГБ RAM).
+    ds = ds.map(lambda x, y: (tf.io.encode_jpeg(x, quality=92), y),
+                num_parallel_calls=tf.data.AUTOTUNE)
     return ds  # кэшируем один раз — после объединения с полевыми данными
 
 
@@ -101,8 +104,10 @@ if extra_x is not None:
             tr = np.concatenate([tr, rng.choice(tr, MIN_PER_CLASS - len(tr), replace=True)])
         tr_idx += tr.tolist()
     tr_idx = rng.permutation(tr_idx)
-    ex_tr = tf.data.Dataset.from_tensor_slices((extra_x[tr_idx], extra_y[tr_idx]))
-    ex_va = tf.data.Dataset.from_tensor_slices((extra_x[va_idx], extra_y[va_idx]))
+    ex_tr = tf.data.Dataset.from_tensor_slices(
+        (tf.constant(list(extra_x[tr_idx]), dtype=tf.string), extra_y[tr_idx]))
+    ex_va = tf.data.Dataset.from_tensor_slices(
+        (tf.constant(list(extra_x[va_idx]), dtype=tf.string), extra_y[va_idx]))
     train_c = train_c.concatenate(ex_tr)
     val_c = val_c.concatenate(ex_va)
     del extra_x
@@ -136,11 +141,19 @@ def to_float(x, y):
     return tf.cast(x, tf.float32), y
 
 
-train_ds = (train_c.shuffle(20000, seed=SEED).batch(BATCH)
+def decode(x, y):
+    img = tf.io.decode_jpeg(x, channels=3)
+    return tf.ensure_shape(img, (IMG, IMG, 3)), y
+
+
+train_ds = (train_c.shuffle(20000, seed=SEED)
+            .map(decode, num_parallel_calls=tf.data.AUTOTUNE)
+            .batch(BATCH)
             .map(to_float, num_parallel_calls=tf.data.AUTOTUNE)
             .map(lambda x, y: (augment(x, training=True), y), num_parallel_calls=tf.data.AUTOTUNE)
             .prefetch(tf.data.AUTOTUNE))
-val_ds = val_c.batch(BATCH).map(to_float).prefetch(tf.data.AUTOTUNE)
+val_ds = (val_c.map(decode, num_parallel_calls=tf.data.AUTOTUNE)
+          .batch(BATCH).map(to_float).prefetch(tf.data.AUTOTUNE))
 
 base = tf.keras.applications.MobileNetV3Large(
     input_shape=(IMG, IMG, 3), include_top=False, weights="imagenet",
