@@ -29,7 +29,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install
-        run: pip install "tensorflow-cpu>=2.16,<2.21" "tensorflow-datasets>=4.9" "numpy<2.2"
+        run: pip install "tensorflow-cpu>=2.16,<2.21" "tensorflow-datasets>=4.9" "numpy<2.2" importlib_resources
 
       - name: Train
         env:
