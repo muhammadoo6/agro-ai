@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:agro_ai/data/local/farm_store.dart';
 import 'package:agro_ai/data/local/local_store.dart';
 import 'package:agro_ai/data/repositories/farm_repository.dart';
 import 'package:agro_ai/features/knowledge/crop_guide.dart';
@@ -9,12 +10,12 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('backup roundtrip restores all data', () async {
-    final a = FarmRepository(MemoryStore());
+    final a = FarmRepository(JsonFarmStore(MemoryStore()));
     await a.load();
     await a.savePlot(Plot(id: 'p', name: 'Қитъа', areaHa: 3, createdAt: DateTime(2026)));
     final raw = BackupService.encode(a);
 
-    final b = FarmRepository(MemoryStore());
+    final b = FarmRepository(JsonFarmStore(MemoryStore()));
     await b.load();
     await b.replaceAll(BackupService.decode(raw));
     expect(b.plots.single.name, 'Қитъа');

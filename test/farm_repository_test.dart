@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:agro_ai/data/local/farm_store.dart';
 import 'package:agro_ai/data/local/local_store.dart';
 import 'package:agro_ai/data/repositories/farm_repository.dart';
 import 'package:agro_ai/data/repositories/settings_repository.dart';
@@ -25,7 +26,7 @@ void main() {
 
   setUp(() async {
     store = MemoryStore();
-    repo = FarmRepository(store);
+    repo = FarmRepository(JsonFarmStore(store));
     await repo.load();
   });
 
@@ -36,7 +37,7 @@ void main() {
         id: 'c', plotId: 'a', cropName: 'Гандум', plantingDate: DateTime(2026, 10, 1)));
     await repo.flush();
 
-    final again = FarmRepository(store);
+    final again = FarmRepository(JsonFarmStore(store));
     await again.load();
     expect(again.plots.length, 2);
     expect(again.totalAreaHa, 2.5);
@@ -139,19 +140,19 @@ void main() {
 
   test('corrupted storage does not crash, bad records are skipped', () async {
     final s = MemoryStore()
-      ..data[FarmRepository.storageKey] = jsonEncode({
+      ..data['farm'] = jsonEncode({
         'plots': [
           {'id': 'ok', 'name': 'A', 'areaHa': 1},
           {'name': 'no id'},
           'garbage',
         ],
       });
-    final r = FarmRepository(s);
+    final r = FarmRepository(JsonFarmStore(s));
     await r.load();
     expect(r.plots.map((e) => e.id), ['ok']);
 
-    final broken = MemoryStore()..data[FarmRepository.storageKey] = '{not json';
-    final r2 = FarmRepository(broken);
+    final broken = MemoryStore()..data['farm'] = '{not json';
+    final r2 = FarmRepository(JsonFarmStore(broken));
     await r2.load();
     expect(r2.isLoaded, isTrue);
     expect(r2.plots, isEmpty);
@@ -167,6 +168,6 @@ void main() {
     expect(again.value.hasApiKey, isTrue);
     await repo.savePlot(plot('a'));
     await repo.flush();
-    expect(store.data[FarmRepository.storageKey], isNot(contains('sk-ant')));
+    expect(store.data['farm'], isNot(contains('sk-ant')));
   });
 }

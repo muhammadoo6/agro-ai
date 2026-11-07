@@ -10,7 +10,7 @@ import '../../models/irrigation.dart';
 import '../../models/plant_scan.dart';
 import '../../models/plot.dart';
 import '../../models/transaction.dart';
-import '../local/local_store.dart';
+import '../local/farm_store.dart';
 
 /// Хулосаи молиявӣ барои давра.
 class FinanceSummary {
@@ -34,10 +34,20 @@ class FinanceSummary {
 class FarmRepository extends ChangeNotifier {
   FarmRepository(this._store);
 
-  static const storageKey = 'farm';
   static const schemaVersion = 1;
 
-  final LocalStore _store;
+  final FarmStore _store;
+
+  /// Что сейчас лежит в базе: table → (id → JSON-строка). Нужно, чтобы
+  /// записывать только изменённые записи.
+  final Map<String, Map<String, String>> _persisted = {
+    for (final t in farmTables) t: <String, String>{},
+  };
+
+  /// Последняя ошибка записи (показывается в «О данных»).
+  Object? lastSaveError;
+
+  String get storageDescription => _store.description;
 
   final List<Plot> _plots = [];
   final List<CropCycle> _cycles = [];
@@ -61,17 +71,37 @@ class FarmRepository extends ChangeNotifier {
   // ---------- бор кардан / сабт ----------
 
   Future<void> load() async {
-    final raw = await _store.read(storageKey);
-    if (raw != null && raw.isNotEmpty) {
-      try {
-        _applyJson(jsonDecode(raw) as Map<String, dynamic>);
-      } catch (e) {
-        debugPrint('FarmRepository: маълумоти вайрон, сарфи назар: $e');
-      }
+    try {
+      final data = await _store.loadAll();
+      _applyJson(data);
+      _snapshotPersisted();
+    } catch (e) {
+      debugPrint('FarmRepository: load failed: $e');
+      lastSaveError = e;
     }
     _loaded = true;
     notifyListeners();
   }
+
+  Map<String, List<Map<String, dynamic>>> _tablesJson() => {
+        'plots': _plots.map((e) => e.toJson()).toList(),
+        'cycles': _cycles.map((e) => e.toJson()).toList(),
+        'irrigations': _irrigations.map((e) => e.toJson()).toList(),
+        'transactions': _transactions.map((e) => e.toJson()).toList(),
+        'harvests': _harvests.map((e) => e.toJson()).toList(),
+        'scans': _scans.map((e) => e.toJson()).toList(),
+      };
+
+  void _snapshotPersisted() {
+    final t = _tablesJson();
+    for (final table in farmTables) {
+      _persisted[table] = {
+        for (final row in t[table]!) row['id'] as String: jsonEncode(row),
+      };
+    }
+  }
+
+  int get totalRecords => farmTables.fold(0, (s, t) => s + _persisted[t]!.length);
 
   Map<String, dynamic> toJson() => {
         'schema': schemaVersion,
@@ -118,25 +148,54 @@ class FarmRepository extends ChangeNotifier {
       ..addAll(parse('scans', PlantScan.fromJson));
   }
 
-  /// Иваз кардани ҳамаи маълумот (барқароркунӣ аз нусха).
-  Future<void> replaceAll(Map<String, dynamic> json) async {
+  /// Иваз кардани ҳамаи маълумот (барқароркунӣ аз нусха) — як транзаксия.
+  Future<void> replaceAll(Map<String, dynamic> json) {
     _applyJson(json);
-    await _commit();
+    notifyListeners();
+    final data = _tablesJson();
+    return _enqueue(() async {
+      await _store.replaceAll(data);
+      _snapshotPersisted();
+    });
   }
 
-  Future<void> clearAll() async {
-    _applyJson(const {});
-    await _commit();
-  }
+  Future<void> clearAll() => replaceAll(const {});
 
-  /// Сабтҳо пай дар пай иҷро мешаванд, то файл вайрон нашавад.
+  /// Ҳисоби тағйирот ва сабти онҳо дар як транзаксия. Сабтҳо пай дар пай.
   Future<void> _commit() {
     notifyListeners();
-    final data = jsonEncode(toJson());
+    final changes = FarmChanges();
+    final now = _tablesJson();
+    final newPersisted = <String, Map<String, String>>{};
+    for (final t in farmTables) {
+      final old = _persisted[t]!;
+      final cur = <String, String>{};
+      for (final row in now[t]!) {
+        final id = row['id'] as String;
+        final enc = jsonEncode(row);
+        cur[id] = enc;
+        if (old[id] != enc) (changes.upserts[t] ??= {})[id] = row;
+      }
+      for (final id in old.keys) {
+        if (!cur.containsKey(id)) (changes.deletes[t] ??= {}).add(id);
+      }
+      newPersisted[t] = cur;
+    }
+    _persisted
+      ..clear()
+      ..addAll(newPersisted);
+    if (changes.isEmpty) return _pendingSave ?? Future.value();
+    return _enqueue(() => _store.apply(changes));
+  }
+
+  Future<void> _enqueue(Future<void> Function() op) {
     final prev = _pendingSave;
-    final next = prev == null
-        ? _store.write(storageKey, data)
-        : prev.catchError((Object _) {}).then((_) => _store.write(storageKey, data));
+    final next = (prev == null ? op() : prev.catchError((Object _) {}).then((_) => op()))
+        .then((_) => lastSaveError = null, onError: (Object e) {
+      lastSaveError = e;
+      debugPrint('FarmRepository: save failed: $e');
+      throw e;
+    });
     _pendingSave = next;
     return next;
   }

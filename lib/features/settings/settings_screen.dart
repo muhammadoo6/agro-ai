@@ -5,6 +5,7 @@ import '../../core/localization/app_strings.dart';
 import '../../core/validation/validators.dart';
 import '../../data/repositories/settings_repository.dart';
 import '../../shared/widgets/common.dart';
+import 'data_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -211,6 +212,16 @@ class SettingsScreen extends StatelessWidget {
                     },
                   ),
                 ],
+              ),
+            ),
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.shield_outlined),
+                title: Text(l.t('data_safety')),
+                subtitle: Text(l.t('data_safety_desc')),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (_) => const DataScreen())),
               ),
             ),
             SectionHeader(l.t('about')),

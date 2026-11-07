@@ -55,5 +55,54 @@ class BackupService {
     return true;
   }
 
+  // ---------- автоматические копии на телефоне ----------
+
+  static const keepAuto = 7;
+
+  static Future<Directory> _autoDir() async {
+    final base = await getApplicationSupportDirectory();
+    final d = Directory('${base.path}${Platform.pathSeparator}backups');
+    if (!await d.exists()) await d.create(recursive: true);
+    return d;
+  }
+
+  /// Раз в сутки сохраняет копию всех данных; хранит [keepAuto] последних.
+  /// Возвращает созданный файл или `null`, если копия за сегодня уже есть.
+  Future<File?> autoBackupIfDue(FarmRepository farm, {DateTime? now}) async {
+    if (farm.totalRecords == 0) return null;
+    final t = now ?? DateTime.now();
+    final dir = await _autoDir();
+    final name = 'auto_${t.year}${_two(t.month)}${_two(t.day)}.json';
+    final file = File('${dir.path}${Platform.pathSeparator}$name');
+    if (await file.exists()) return null;
+    final tmp = File('${file.path}.tmp');
+    await tmp.writeAsString(encode(farm, now: t), flush: true);
+    await tmp.rename(file.path);
+    final all = await listAutoBackups();
+    for (final old in all.skip(keepAuto)) {
+      try {
+        await old.delete();
+      } catch (_) {}
+    }
+    return file;
+  }
+
+  /// Автокопии, новые первыми.
+  Future<List<File>> listAutoBackups() async {
+    final dir = await _autoDir();
+    final files = dir
+        .listSync()
+        .whereType<File>()
+        .where((f) => f.path.endsWith('.json') && f.uri.pathSegments.last.startsWith('auto_'))
+        .toList()
+      ..sort((a, b) => b.path.compareTo(a.path));
+    return files;
+  }
+
+  Future<void> restoreFromFile(FarmRepository farm, File file) async {
+    final data = decode(await file.readAsString());
+    await farm.replaceAll(data);
+  }
+
   static String _two(int v) => v.toString().padLeft(2, '0');
 }
