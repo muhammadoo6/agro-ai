@@ -34,6 +34,7 @@ MIN_PER_CLASS = int(os.environ.get("MIN_PER_CLASS", "600"))
 KEEP_CROPS = ("apple", "cherry", "corn", "grape", "peach", "pepper", "potato",
               "strawberry", "tomato")
 
+tfds.disable_progress_bar()  # иначе лог GitHub переполняется
 os.makedirs(OUT_DIR, exist_ok=True)
 tf.keras.utils.set_random_seed(SEED)
 t0 = time.time()
@@ -76,7 +77,7 @@ def select(ds):
     ds = ds.map(lambda x, y: (tf.image.resize(x, (IMG, IMG), antialias=True), y),
                 num_parallel_calls=tf.data.AUTOTUNE)
     ds = ds.map(lambda x, y: (tf.cast(tf.clip_by_value(x, 0, 255), tf.uint8), y))
-    return ds.cache()
+    return ds  # кэшируем один раз — после объединения с полевыми данными
 
 
 if LIMIT:
@@ -102,9 +103,12 @@ if extra_x is not None:
     tr_idx = rng.permutation(tr_idx)
     ex_tr = tf.data.Dataset.from_tensor_slices((extra_x[tr_idx], extra_y[tr_idx]))
     ex_va = tf.data.Dataset.from_tensor_slices((extra_x[va_idx], extra_y[va_idx]))
-    train_c = train_c.concatenate(ex_tr).cache()
-    val_c = val_c.concatenate(ex_va).cache()
+    train_c = train_c.concatenate(ex_tr)
+    val_c = val_c.concatenate(ex_va)
     del extra_x
+
+train_c = train_c.cache()
+val_c = val_c.cache()
 
 n_classes = len(labels)
 counts = np.zeros(n_classes, dtype=np.int64)

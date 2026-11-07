@@ -69,8 +69,7 @@ class SqliteFarmStore implements FarmStore {
     for (final t in farmTables) {
       final rows = await _db.query(t, columns: ['data']);
       out[t] = [
-        for (final r in rows)
-          if (_decode(r['data']) case final m?) m,
+        for (final r in rows) ?_decode(r['data']),
       ];
     }
     return out;
