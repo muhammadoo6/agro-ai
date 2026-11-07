@@ -110,9 +110,40 @@ def load_wheat(img):
     return xs, ys
 
 
+# Растительные категории Caltech-101 не берём в класс «не лист».
+PLANT_LIKE = ("bonsai", "lotus", "sunflower", "water_lil", "strawberry", "joshua",
+              "flower", "leaf", "tree")
+OTHER_LABEL = "Other___not_leaf"
+OTHER_MAX = int(os.environ.get("OTHER_MAX", "3500"))
+
+
+def load_other(img):
+    """Класс «это не лист»: обычные фото предметов, еды, людей, фона (Caltech-101, CC BY 4.0)."""
+    import tensorflow_datasets as tfds
+    ds, info = tfds.load("caltech101", split="train+test", as_supervised=True, with_info=True)
+    names = info.features["label"].names
+    bad = {i for i, n in enumerate(names) if any(k in n.lower() for k in PLANT_LIKE)}
+    print("caltech excluded:", [names[i] for i in sorted(bad)])
+    xs = []
+    rng = np.random.default_rng(7)
+    for x, y in ds.shuffle(10000, seed=7):
+        if int(y) in bad:
+            continue
+        im = Image.fromarray(x.numpy()).convert("RGB")
+        im = ImageOps.fit(im, (img, img), Image.BILINEAR)
+        a = np.asarray(im, dtype=np.uint8)
+        if rng.random() < 0.3:  # часть — серые/выцветшие, как фото в плохом свете
+            g = a.mean(axis=2, keepdims=True).astype(np.uint8)
+            a = np.repeat(g, 3, axis=2)
+        xs.append(a)
+        if len(xs) >= OTHER_MAX:
+            break
+    return xs, [OTHER_LABEL] * len(xs)
+
+
 def load_extra(img):
     xs, ys = [], []
-    for fn in (load_cotton, load_wheat):
+    for fn in (load_cotton, load_wheat, load_other):
         a, b = fn(img)
         print(fn.__name__, len(a), {k: b.count(k) for k in sorted(set(b))})
         xs += a
