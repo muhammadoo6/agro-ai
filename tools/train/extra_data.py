@@ -117,21 +117,55 @@ OTHER_LABEL = "Other___not_leaf"
 OTHER_MAX = int(os.environ.get("OTHER_MAX", "3500"))
 
 
+CALTECH_URL = ("https://huggingface.co/datasets/HuggingFaceM4/Caltech-101/resolve/main/"
+               "caltech-101.zip")
+
+
+def _extract_all(path, out):
+    """Распаковывает zip/tar(.gz) рекурсивно (архив внутри архива)."""
+    import tarfile
+    import zipfile
+    os.makedirs(out, exist_ok=True)
+    if zipfile.is_zipfile(path):
+        with zipfile.ZipFile(path) as z:
+            z.extractall(out)
+    elif tarfile.is_tarfile(path):
+        with tarfile.open(path) as t:
+            t.extractall(out)
+    for root, _, files in os.walk(out):
+        for fn in files:
+            if fn.endswith((".tar.gz", ".tgz", ".tar", ".zip")):
+                inner = os.path.join(root, fn)
+                dest = inner + "_x"
+                if not os.path.isdir(dest):
+                    _extract_all(inner, dest)
+
+
 def load_other(img):
-    """Класс «это не лист»: обычные фото предметов, еды, людей, фона (Caltech-101, CC BY 4.0)."""
-    import tensorflow_datasets as tfds
-    ds, info = tfds.load("caltech101", split="train+test", as_supervised=True, with_info=True)
-    names = info.features["label"].names
-    bad = {i for i, n in enumerate(names) if any(k in n.lower() for k in PLANT_LIKE)}
-    print("caltech excluded:", [names[i] for i in sorted(bad)])
-    xs = []
-    rng = np.random.default_rng(7)
-    for x, y in ds.shuffle(10000, seed=7):
-        if int(y) in bad:
+    """Класс «это не лист»: обычные фото предметов, людей, фона (Caltech-101, CC BY 4.0)."""
+    arc = _download(CALTECH_URL, os.path.join(CACHE, "caltech-101.zip"))
+    out = os.path.join(CACHE, "caltech")
+    if not os.path.isdir(out):
+        _extract_all(arc, out)
+    paths, excluded = [], set()
+    for root, _, files in os.walk(out):
+        cat = os.path.basename(root).lower()
+        if "annotation" in root.lower():
             continue
-        im = Image.fromarray(x.numpy()).convert("RGB")
-        im = ImageOps.fit(im, (img, img), Image.BILINEAR)
-        a = np.asarray(im, dtype=np.uint8)
+        if any(k in cat for k in PLANT_LIKE):
+            excluded.add(cat)
+            continue
+        paths += [os.path.join(root, f) for f in files if f.lower().endswith(IMG_EXT)]
+    print("caltech images:", len(paths), "excluded:", sorted(excluded))
+    rng = np.random.default_rng(7)
+    rng.shuffle(paths)
+    xs = []
+    for pth in paths:
+        try:
+            a = _prep(pth, img)
+        except Exception as e:  # noqa: BLE001
+            print("skip caltech image:", e)
+            continue
         if rng.random() < 0.3:  # часть — серые/выцветшие, как фото в плохом свете
             g = a.mean(axis=2, keepdims=True).astype(np.uint8)
             a = np.repeat(g, 3, axis=2)
