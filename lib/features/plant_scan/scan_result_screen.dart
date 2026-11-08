@@ -81,7 +81,7 @@ class ScanResultScreen extends StatelessWidget {
                     color: scan.severity == Severity.high
                         ? AppColors.expense
                         : AppColors.warning),
-              if (scan.cropName?.isNotEmpty == true) Pill('🌱 ${scan.cropName}'),
+              if (scan.cropName?.isNotEmpty == true) Pill(scan.cropName!),
             ],
           ),
           const SizedBox(height: 12),

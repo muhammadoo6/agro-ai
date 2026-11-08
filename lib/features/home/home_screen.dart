@@ -65,13 +65,18 @@ class HomeScreen extends StatelessWidget {
 
           return CustomScrollView(
             slivers: [
-              SliverToBoxAdapter(child: _Hero(now: now)),
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-                sliver: SliverList.list(
+              SliverToBoxAdapter(
+                child: Stack(
+                  clipBehavior: Clip.none,
                   children: [
-                    Transform.translate(
-                      offset: const Offset(0, -28),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 56),
+                      child: _Hero(now: now),
+                    ),
+                    Positioned(
+                      left: 16,
+                      right: 16,
+                      bottom: 0,
                       child: _StatsRow(
                         plots: farm.plots.length,
                         area: farm.totalAreaHa,
@@ -79,6 +84,13 @@ class HomeScreen extends StatelessWidget {
                         balance: season.balance,
                       ),
                     ),
+                  ],
+                ),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+                sliver: SliverList.list(
+                  children: [
                     if (farm.plots.isEmpty) _DemoBanner(onTap: () => loadDemoFarm(context)),
                     if (!s.config.isOffline) const WeatherCard(),
                     SectionHeader(l.t('quick_actions')),

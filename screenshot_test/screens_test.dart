@@ -2,7 +2,6 @@
 // Запуск: flutter test --update-goldens screenshot_test/
 // Картинки: screenshot_test/screens/<lang>_<name>.png
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:agro_ai/app.dart';
 import 'package:agro_ai/core/app_config.dart';
@@ -62,6 +61,11 @@ void main() {
       tester.view.devicePixelRatio = 2.75;
       addTearDown(tester.view.reset);
 
+      Future<void> back() async {
+        tester.state<NavigatorState>(find.byType(Navigator).last).pop();
+        await tester.pumpAndSettle();
+      }
+
       Future<void> shot(String name) async {
         await tester.pumpAndSettle(const Duration(milliseconds: 100));
         await expectLater(find.byType(MaterialApp), matchesGoldenFile('screens/${lang}_$name.png'));
@@ -106,16 +110,14 @@ void main() {
       await shot('05_plots');
       await tester.tap(find.byType(InkWell).first);
       await shot('06_plot_detail');
-      await tester.pageBack();
-      await tester.pumpAndSettle();
+      await back();
 
       // 4. Скан и результат
       await tester.tap(_nav(t.scan));
       await shot('07_scan');
       await tester.tap(find.byType(ListTile).last);
       await shot('08_scan_result');
-      await tester.pageBack();
-      await tester.pumpAndSettle();
+      await back();
 
       // 5. Дневник: итоги
       await tester.tap(_nav(t.diary));
@@ -128,8 +130,7 @@ void main() {
       await shot('11_knowledge');
       await tester.tap(find.byType(ListTile).first);
       await shot('12_crop_guide');
-      await tester.pageBack();
-      await tester.pumpAndSettle();
+      await back();
 
       // 7. Настройки и данные
       await tester.tap(_nav(t.home));

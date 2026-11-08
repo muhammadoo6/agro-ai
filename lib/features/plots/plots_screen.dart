@@ -87,7 +87,7 @@ class PlotsScreen extends StatelessWidget {
                           const SizedBox(height: 12),
                           Row(
                             children: [
-                              Pill('🌱 ${cycle.cropName}'),
+                              Pill(cycle.cropName),
                               const SizedBox(width: 8),
                               Text(l.f('day_n', [cycle.daysSincePlanting()]),
                                   style: Theme.of(context).textTheme.bodySmall),

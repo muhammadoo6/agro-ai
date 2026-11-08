@@ -21,6 +21,9 @@ class AppTheme {
       secondary: AppColors.secondary,
       brightness: brightness,
     );
+    final baseText = ThemeData(useMaterial3: true, colorScheme: scheme).textTheme;
+    final buttonText = (baseText.labelLarge ?? const TextStyle())
+        .copyWith(fontSize: 16, fontWeight: FontWeight.w600);
     return ThemeData(
       useMaterial3: true,
       colorScheme: scheme,
@@ -45,7 +48,7 @@ class AppTheme {
         style: FilledButton.styleFrom(
           minimumSize: const Size(64, 52),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          textStyle: buttonText,
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
