@@ -32,7 +32,7 @@ class AppSettings {
   final String weatherCity;
 
   /// Ключ выбранного провайдера.
-  String get activeKey => aiProvider == AiProvider.gemini ? geminiKey : apiKey;
+  String get activeKey => (aiProvider == AiProvider.gemini ? geminiKey : apiKey).trim();
   bool get hasApiKey => activeKey.trim().isNotEmpty;
 
   AppSettings copyWith({

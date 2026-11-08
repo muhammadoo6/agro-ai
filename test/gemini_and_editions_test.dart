@@ -1,3 +1,4 @@
+import 'package:agro_ai/core/validation/validators.dart';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -158,5 +159,12 @@ void main() {
     expect(find.text('Gemini (ройгон)'), findsOneWidget);
     expect(find.text('Калиди Gemini API'), findsOneWidget);
     expect(services.offline, isNull);
+  });
+
+  test('geminiKey format: old AIza and new AQ. keys accepted', () {
+    expect(Validators.geminiKey('AIza${'x' * 35}'), isNull);
+    expect(Validators.geminiKey('AQ.${'x' * 50}'), isNull);
+    expect(Validators.geminiKey('short'), 'err_gemini_key');
+    expect(Validators.geminiKey('AQ.abc def${'x' * 30}'), 'err_gemini_key');
   });
 }

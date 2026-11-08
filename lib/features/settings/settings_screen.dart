@@ -269,7 +269,7 @@ class SettingsScreen extends StatelessWidget {
                 autocorrect: false,
                 enableSuggestions: false,
                 decoration: InputDecoration(
-                    hintText: gemini ? 'AIza...' : l.t('api_key_hint')),
+                    hintText: gemini ? 'AIza… / AQ.…' : l.t('api_key_hint')),
                 validator: (v) {
                   final e = gemini ? Validators.geminiKey(v) : Validators.apiKey(v);
                   return e == null ? null : l.t(e);

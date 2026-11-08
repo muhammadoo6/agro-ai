@@ -86,11 +86,9 @@ class _PlantScanScreenState extends State<PlantScanScreen> {
         );
       } on ClaudeApiException catch (e) {
         // Хатои шабака — маслиҳати офлайн, то деҳқон бе ҷавоб намонад.
-        if (e.retryable && mounted) {
-          showSnack(context, l.f('scan_error', [e.message]));
-        }
-        if (!e.retryable) rethrow;
-        // Нет сети или лимит API — распознаём своей моделью.
+        // Показываем причину (нет сети, лимит, неверный ключ) и не оставляем
+        // фермера без ответа — распознаём своей моделью.
+        if (mounted) showSnack(context, l.f('scan_error', [e.message]));
         result = offline != null
             ? await offline.diagnose(
                 imageBytes: await saved.readAsBytes(),
