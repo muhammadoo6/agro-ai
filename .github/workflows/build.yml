@@ -64,6 +64,18 @@ jobs:
         continue-on-error: true
         run: flutter test
 
+      - name: Screenshots of all screens (tg/ru)
+        id: shots
+        continue-on-error: true
+        run: flutter test --update-goldens screenshot_test/
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: screenshots
+          path: screenshot_test/screens/
+          if-no-files-found: ignore
+
       # Калиди имзо аз GitHub secrets (агар набошад — имзои debug).
       - name: Restore signing key
         env:

@@ -147,6 +147,13 @@ void main() {
     expect(leafColorRatio(solid(128, 128, 128)), 0); // серый фон
   });
 
+  test('flipHorizontal mirrors pixels', () {
+    final f = Float32List.fromList([1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4]); // 2x2
+    final m = flipHorizontal(f, 2);
+    expect(m.sublist(0, 6), [2, 2, 2, 1, 1, 1]);
+    expect(flipHorizontal(m, 2), f);
+  });
+
   test('preprocess produces RGB floats of the right size', () {
     final image = img.Image(width: 300, height: 200);
     img.fill(image, color: img.ColorRgb8(10, 200, 30));

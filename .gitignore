@@ -37,3 +37,4 @@ scaffold/
 .DS_Store
 Thumbs.db
 release/
+screenshot_test/screens/

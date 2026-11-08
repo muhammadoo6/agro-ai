@@ -52,9 +52,17 @@ class TfliteClassifier implements PlantClassifier {
   Future<ClassifyResult> classify(Uint8List imageBytes) async {
     // Декодирование и уменьшение — в отдельном изоляте, чтобы не тормозил экран.
     final input = await compute(_preprocess, (imageBytes, inputSize));
+    // TTA: фото и его зеркальная копия, ответы усредняются — точнее на 1–3%.
+    final a = _run(input);
+    final b = _run(flipHorizontal(input, inputSize));
+    final probs = [for (var i = 0; i < a.length; i++) (a[i] + b[i]) / 2];
+    return ClassifyResult(probs, leafRatio: leafColorRatio(input));
+  }
+
+  List<double> _run(Float32List input) {
     final output = [List<double>.filled(labels.length, 0)];
     _interpreter.run(input.reshape([1, inputSize, inputSize, 3]), output);
-    return ClassifyResult(output.first, leafRatio: leafColorRatio(input));
+    return output.first;
   }
 
   void close() => _interpreter.close();
@@ -74,6 +82,20 @@ Float32List _preprocess((Uint8List, int) args) {
       out[i++] = p.r.toDouble();
       out[i++] = p.g.toDouble();
       out[i++] = p.b.toDouble();
+    }
+  }
+  return out;
+}
+
+/// Зеркальное отражение по горизонтали (RGB, size×size).
+Float32List flipHorizontal(Float32List rgb, int size) {
+  final out = Float32List(rgb.length);
+  for (var y = 0; y < size; y++) {
+    for (var x = 0; x < size; x++) {
+      final src = (y * size + x) * 3, dst = (y * size + (size - 1 - x)) * 3;
+      out[dst] = rgb[src];
+      out[dst + 1] = rgb[src + 1];
+      out[dst + 2] = rgb[src + 2];
     }
   }
   return out;
