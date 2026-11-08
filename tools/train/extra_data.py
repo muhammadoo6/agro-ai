@@ -182,6 +182,76 @@ def load_other(img):
     return xs, [OTHER_LABEL] * len(xs)
 
 
+PLANTDOC_URL = "https://codeload.github.com/pratikkayal/PlantDoc-Dataset/zip/refs/heads/master"
+# Папка PlantDoc → класс модели (имена PlantVillage как в TFDS). Нет в списке — пропускаем.
+PLANTDOC_MAP = {
+    "apple scab leaf": "Apple___Apple_scab",
+    "apple leaf": "Apple___healthy",
+    "apple rust leaf": "Apple___Cedar_apple_rust",
+    "bell_pepper leaf spot": "Pepper,_bell___Bacterial_spot",
+    "bell_pepper leaf": "Pepper,_bell___healthy",
+    "cherry leaf": "Cherry___healthy",
+    "corn gray leaf spot": "Corn___Cercospora_leaf_spot Gray_leaf_spot",
+    "corn leaf blight": "Corn___Northern_Leaf_Blight",
+    "corn rust leaf": "Corn___Common_rust",
+    "peach leaf": "Peach___healthy",
+    "potato leaf early blight": "Potato___Early_blight",
+    "potato leaf late blight": "Potato___Late_blight",
+    "strawberry leaf": "Strawberry___healthy",
+    "tomato early blight leaf": "Tomato___Early_blight",
+    "tomato septoria leaf spot": "Tomato___Septoria_leaf_spot",
+    "tomato leaf bacterial spot": "Tomato___Bacterial_spot",
+    "tomato leaf late blight": "Tomato___Late_blight",
+    "tomato leaf mosaic virus": "Tomato___Tomato_mosaic_virus",
+    "tomato leaf yellow virus": "Tomato___Tomato_Yellow_Leaf_Curl_Virus",
+    "tomato leaf": "Tomato___healthy",
+    "tomato mold leaf": "Tomato___Leaf_Mold",
+    "tomato two spotted spider mites leaf": "Tomato___Spider_mites Two-spotted_spider_mite",
+    "grape leaf black rot": "Grape___Black_rot",
+    "grape leaf": "Grape___healthy",
+}
+
+
+def load_plantdoc(img):
+    """Полевые фото PlantDoc (CC BY 4.0, Singh et al. 2020).
+
+    Возвращает (train_x, train_names, test_x, test_names); test — отдельная
+    «полевая» проверка, в обучение не попадает.
+    """
+    import zipfile
+    arc = _download(PLANTDOC_URL, os.path.join(CACHE, "plantdoc.zip"))
+    out = os.path.join(CACHE, "plantdoc")
+    if not os.path.isdir(out):
+        with zipfile.ZipFile(arc) as z:
+            z.extractall(out)
+    res = {"train": ([], []), "test": ([], [])}
+    skipped = set()
+    for root, _, files in os.walk(out):
+        parts = os.path.normpath(root).split(os.sep)
+        split = next((s for s in ("train", "test") if s in parts), None)
+        if split is None:
+            continue
+        cls = os.path.basename(root).strip().lower()
+        label = PLANTDOC_MAP.get(cls)
+        if label is None:
+            if files:
+                skipped.add(cls)
+            continue
+        for fn in files:
+            if not fn.lower().endswith(IMG_EXT):
+                continue
+            try:
+                res[split][0].append(_jpeg(_prep(os.path.join(root, fn), img)))
+                res[split][1].append(label)
+            except Exception as e:  # noqa: BLE001
+                print("skip plantdoc image:", e)
+    print("plantdoc skipped classes:", sorted(skipped))
+    for s in ("train", "test"):
+        names = res[s][1]
+        print(f"plantdoc {s}: {len(names)}", {k: names.count(k) for k in sorted(set(names))})
+    return res["train"][0], res["train"][1], res["test"][0], res["test"][1]
+
+
 def load_extra(img):
     xs, ys = [], []
     for fn in (load_cotton, load_wheat, load_other):

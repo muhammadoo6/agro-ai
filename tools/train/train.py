@@ -28,6 +28,9 @@ LIMIT = int(os.environ.get("LIMIT", "0"))  # >0 — быстрый пробны�
 EXTRA = os.environ.get("EXTRA", "1") == "1"  # хлопок и пшеница
 # Маленькие полевые классы повторяем до этого числа примеров (аугментации разные).
 MIN_PER_CLASS = int(os.environ.get("MIN_PER_CLASS", "600"))
+PLANTDOC = os.environ.get("PLANTDOC", "1") == "1"  # полевые фото PlantDoc
+PD_REPEAT = int(os.environ.get("PD_REPEAT", "4"))  # во сколько раз повторить полевые фото
+FINE_LAYERS = int(os.environ.get("FINE_LAYERS", "100"))  # сколько верхних слоёв дообучать
 
 # Культуры, полезные для Таджикистана.
 # Сравниваем по началу названия (в TFDS: "Cherry___...", "Corn___..." и т.п.).
@@ -63,6 +66,26 @@ if EXTRA:
     idx = {n: i for i, n in enumerate(labels)}
     extra_y = np.array([idx[n] for n in extra_names], dtype=np.int64)
     print(f"extra classes: {extra_labels}; images: {len(extra_y)}")
+
+# Полевые фото: обучающая часть — в обучение, тестовая — отдельная «полевая» проверка.
+pd_tr = pd_te = None
+if PLANTDOC:
+    import sys
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from extra_data import load_plantdoc
+    ptx, ptn, pex, pen = load_plantdoc(IMG)
+    lidx = {n: i for i, n in enumerate(labels)}
+
+    def _keep(xs, ns):
+        pairs = [(x, lidx[n]) for x, n in zip(xs, ns) if n in lidx]
+        missing = sorted({n for n in ns if n not in lidx})
+        if missing:
+            print("plantdoc labels not in model:", missing)
+        return [p[0] for p in pairs], np.array([p[1] for p in pairs], dtype=np.int64)
+
+    pd_tr = _keep(ptx, ptn)
+    pd_te = _keep(pex, pen)
+    print(f"plantdoc used: train {len(pd_tr[1])}, field-test {len(pd_te[1])}")
 
 remap = np.full(len(all_names), -1, dtype=np.int64)
 for new, old in enumerate(keep):
@@ -111,6 +134,13 @@ if extra_x is not None:
     train_c = train_c.concatenate(ex_tr)
     val_c = val_c.concatenate(ex_va)
     del extra_x
+
+if pd_tr is not None and len(pd_tr[1]):
+    reps = 1 if LIMIT else PD_REPEAT
+    xs = pd_tr[0] * reps
+    ys = np.tile(pd_tr[1], reps)
+    train_c = train_c.concatenate(
+        tf.data.Dataset.from_tensor_slices((tf.constant(xs, dtype=tf.string), ys)))
 
 train_c = train_c.cache()
 val_c = val_c.cache()
@@ -173,7 +203,7 @@ print(f"head done in {time.time() - t0:.0f}s")
 
 # Дообучение верхних слоёв.
 base.trainable = True
-for layer in base.layers[:-60]:
+for layer in base.layers[:-FINE_LAYERS]:
     layer.trainable = False
 for layer in base.layers:
     if isinstance(layer, tf.keras.layers.BatchNormalization):
@@ -196,6 +226,33 @@ for i, n in enumerate(labels):
     m = y_true == i
     per_class[n] = {"n": int(m.sum()), "acc": float((y_pred[m] == i).mean()) if m.any() else None}
 print(f"VAL ACCURACY: {acc:.4f}")
+
+# «Полевая» проверка на PlantDoc test: фото с реальных полей, модель их не видела.
+field = None
+if pd_te is not None and len(pd_te[1]):
+    fx = tf.data.Dataset.from_tensor_slices(
+        (tf.constant(pd_te[0], dtype=tf.string), pd_te[1]))
+    fds = fx.map(decode).batch(BATCH).map(to_float)
+    probs, ys = [], []
+    for xb, yb in fds:
+        p1 = model.predict_on_batch(xb)
+        p2 = model.predict_on_batch(tf.image.flip_left_right(xb))  # как в приложении (TTA)
+        probs.append((p1 + p2) / 2)
+        ys.extend(yb.numpy().tolist())
+    probs = np.concatenate(probs)
+    ys = np.array(ys)
+    crop_of = [n.split("___")[0].lower() for n in labels]
+    top1 = float((probs.argmax(1) == ys).mean())
+    top3 = float(np.mean([y in np.argsort(-p)[:3] for p, y in zip(probs, ys)]))
+    # Если фермер указал культуру — сравниваем только её классы (так работает приложение).
+    crop_ok = []
+    for p, y in zip(probs, ys):
+        mask = np.array([c == crop_of[y] for c in crop_of])
+        crop_ok.append(int(np.argmax(np.where(mask, p, -1)) == y))
+    crop_acc = float(np.mean(crop_ok))
+    field = {"n": int(len(ys)), "top1": top1, "top3": top3, "with_crop_hint": crop_acc}
+    print(f"FIELD (PlantDoc test, TTA): n={len(ys)} top1={top1:.4f} top3={top3:.4f} "
+          f"with_crop_hint={crop_acc:.4f}")
 
 # Экспорт TFLite.
 saved_dir = os.path.join(OUT_DIR, "_saved")
@@ -229,6 +286,7 @@ print(f"TFLITE ACCURACY (sample {tot}): {tfl_acc:.4f}; size {len(tfl) / 1e6:.2f}
 with open(os.path.join(OUT_DIR, "report.json"), "w", encoding="utf-8") as f:
     json.dump({"val_accuracy": acc, "tflite_sample_accuracy": tfl_acc, "img": IMG,
                "train_counts": dict(zip(labels, counts.tolist())), "per_class": per_class,
+               "field": field,
                "seconds": time.time() - t0}, f, ensure_ascii=False, indent=1)
 import shutil
 shutil.rmtree(saved_dir, ignore_errors=True)

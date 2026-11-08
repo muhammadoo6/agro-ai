@@ -13,6 +13,9 @@ on:
       limit:
         description: 'Пробный прогон: сколько фото (0 = все)'
         default: '0'
+      fine_layers:
+        description: 'Сколько верхних слоёв дообучать'
+        default: '100'
 
 permissions:
   contents: read
@@ -40,6 +43,7 @@ jobs:
           EPOCHS_HEAD: ${{ inputs.epochs_head }}
           EPOCHS_FINE: ${{ inputs.epochs_fine }}
           LIMIT: ${{ inputs.limit }}
+          FINE_LAYERS: ${{ inputs.fine_layers }}
           TF_CPP_MIN_LOG_LEVEL: '2'
         run: |
           (while true; do echo "MON $(date +%T) mem=$(free -m | awk '/Mem/{print $3"/"$2}') swap=$(free -m | awk '/Swap/{print $3"/"$2}') disk=$(df -h / | awk 'NR==2{print $3"/"$2}')"; sleep 20; done) &
