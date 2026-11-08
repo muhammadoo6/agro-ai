@@ -1,0 +1,21 @@
+name: eval-field
+
+# Проверка модели из assets/models на полевых фото PlantDoc (test).
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install "tensorflow-cpu>=2.16,<2.21" "numpy<2.2" pillow
+      - name: Evaluate
+        run: python -u tools/train/eval_field.py
