@@ -4,6 +4,14 @@ name: ios
 # обычным Apple ID. Запуск вручную: минуты macOS на GitHub считаются в 10 раз дороже.
 on:
   workflow_dispatch:
+    inputs:
+      tflite_ios:
+        description: 'Версия TensorFlowLiteSwift для iOS (у плагина 2.12.0 — старее модели)'
+        default: '2.17.0'
+      check_old:
+        description: 'Сначала проверить модель со старой 2.12.0 (диагностика)'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -11,7 +19,7 @@ permissions:
 jobs:
   ios:
     runs-on: macos-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
 
@@ -22,6 +30,29 @@ jobs:
           cache: true
 
       - run: flutter pub get
+
+      - name: Boot iPhone simulator
+        id: sim
+        run: |
+          UDID=$(xcrun simctl list devices available -j | python3 -c "import json,sys;d=json.load(sys.stdin)['devices'];print(next(x['udid'] for k,v in d.items() if 'iOS' in k for x in v if x['name'].startswith('iPhone')))")
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+          xcrun simctl boot "$UDID" || true
+
+      - name: Model test with plugin's TFLite 2.12 (diagnostic)
+        if: ${{ inputs.check_old }}
+        continue-on-error: true
+        run: flutter test integration_test/model_load_test.dart -d ${{ steps.sim.outputs.udid }} --dart-define=EDITION=offline
+
+      - name: Use newer TensorFlow Lite on iOS
+        run: |
+          P=$(find "$PUB_CACHE/hosted/pub.dev" -maxdepth 1 -name 'tflite_flutter-*' | head -1)
+          echo "plugin: $P"
+          sed -i '' "s/tflite_version = '[0-9.]*'/tflite_version = '${{ inputs.tflite_ios }}'/" "$P/ios/tflite_flutter.podspec"
+          grep -n "tflite_version =" "$P/ios/tflite_flutter.podspec"
+          rm -rf ios/Pods ios/Podfile.lock
+
+      - name: Model test on iPhone simulator (must pass)
+        run: flutter test integration_test/model_load_test.dart -d ${{ steps.sim.outputs.udid }} --dart-define=EDITION=offline
 
       - name: Build iOS (offline edition, no codesign)
         run: flutter build ios --release --no-codesign --dart-define=EDITION=offline

@@ -6,6 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:image/image.dart' as img;
 import 'package:tflite_flutter/tflite_flutter.dart';
 
+import '../error_log.dart';
+
 /// Результат: вероятности по классам и доля «листовых» (зелёно-жёлтых) пикселей.
 class ClassifyResult {
   const ClassifyResult(this.probs, {this.leafRatio = 1.0});
@@ -28,6 +30,9 @@ class TfliteClassifier implements PlantClassifier {
   static const modelAsset = 'assets/models/plant_disease.tflite';
   static const labelsAsset = 'assets/models/labels.json';
 
+  /// Причина, если модель не загрузилась (видна в журнале ошибок и в тестах).
+  static String? lastError;
+
   final Interpreter _interpreter;
   @override
   final List<String> labels;
@@ -42,8 +47,10 @@ class TfliteClassifier implements PlantClassifier {
       final size = (meta['input_size'] as num?)?.toInt() ?? 224;
       final interpreter = await Interpreter.fromAsset(modelAsset);
       return TfliteClassifier._(interpreter, labels, size);
-    } catch (e) {
+    } catch (e, st) {
+      lastError = '$e';
       debugPrint('Offline model not available: $e');
+      ErrorLog.instance.record(e, st, context: 'model-load');
       return null;
     }
   }
