@@ -237,7 +237,7 @@ class L10n {
       'offline_model_section': 'Модели офлайн',
       'edition_offline': 'Версияи офлайн: ҳамаи таҳлил дар телефон, акс ба ҷое фиристода намешавад.',
       'data_source':
-          'Манбаи маълумот: PlantVillage (CC BY-SA), SAR-CLD-2024 — пахта, Wheat Leaf Dataset — гандум (CC BY 4.0).',
+          'Манбаи маълумот: PlantVillage (CC BY-SA); PlantDoc — аксҳои саҳро, SAR-CLD-2024 — пахта, Wheat Leaf Dataset — гандум, Caltech-101 (CC BY 4.0).',
       'scan_intro':
           'Аз барг ё мевае, ки нишонаи беморӣ дорад, акси равшан гиред. AI бемориро муайян карда, тавсия медиҳад.',
       'take_photo': 'Акс гирифтан',
@@ -507,7 +507,7 @@ class L10n {
       'offline_model_section': 'Офлайн-модель',
       'edition_offline': 'Офлайн-версия: весь анализ в телефоне, фото никуда не отправляются.',
       'data_source':
-          'Источники данных: PlantVillage (CC BY-SA), SAR-CLD-2024 — хлопок, Wheat Leaf Dataset — пшеница (CC BY 4.0).',
+          'Источники данных: PlantVillage (CC BY-SA); PlantDoc — полевые фото, SAR-CLD-2024 — хлопок, Wheat Leaf Dataset — пшеница, Caltech-101 (CC BY 4.0).',
       'scan_intro':
           'Сделайте чёткое фото листа или плода с признаками болезни. AI определит проблему и даст рекомендации.',
       'take_photo': 'Сделать фото',

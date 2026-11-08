@@ -1,41 +1,41 @@
 {
- "val_accuracy": 0.9558908879860708,
- "tflite_sample_accuracy": 0.9359375,
+ "val_accuracy": 0.96445153801509,
+ "tflite_sample_accuracy": 0.946875,
  "img": 224,
  "train_counts": {
-  "Apple___Apple_scab": 534,
+  "Apple___Apple_scab": 1032,
   "Apple___Black_rot": 514,
-  "Apple___Cedar_apple_rust": 235,
-  "Apple___healthy": 1390,
-  "Cherry___healthy": 719,
+  "Apple___Cedar_apple_rust": 709,
+  "Apple___healthy": 1882,
+  "Cherry___healthy": 1001,
   "Cherry___Powdery_mildew": 905,
-  "Corn___Cercospora_leaf_spot Gray_leaf_spot": 427,
-  "Corn___Common_rust": 1007,
+  "Corn___Cercospora_leaf_spot Gray_leaf_spot": 811,
+  "Corn___Common_rust": 1643,
   "Corn___healthy": 995,
-  "Corn___Northern_Leaf_Blight": 832,
-  "Grape___Black_rot": 1017,
+  "Corn___Northern_Leaf_Blight": 1912,
+  "Grape___Black_rot": 1353,
   "Grape___Esca_(Black_Measles)": 1182,
-  "Grape___healthy": 365,
+  "Grape___healthy": 707,
   "Grape___Leaf_blight_(Isariopsis_Leaf_Spot)": 924,
   "Peach___Bacterial_spot": 1954,
-  "Peach___healthy": 313,
-  "Pepper,_bell___Bacterial_spot": 848,
-  "Pepper,_bell___healthy": 1246,
-  "Potato___Early_blight": 859,
+  "Peach___healthy": 931,
+  "Pepper,_bell___Bacterial_spot": 1220,
+  "Pepper,_bell___healthy": 1564,
+  "Potato___Early_blight": 1513,
   "Potato___healthy": 130,
-  "Potato___Late_blight": 847,
-  "Strawberry___healthy": 384,
+  "Potato___Late_blight": 1429,
+  "Strawberry___healthy": 912,
   "Strawberry___Leaf_scorch": 980,
-  "Tomato___Bacterial_spot": 1842,
-  "Tomato___Early_blight": 855,
-  "Tomato___healthy": 1340,
-  "Tomato___Late_blight": 1627,
-  "Tomato___Leaf_Mold": 810,
-  "Tomato___Septoria_leaf_spot": 1509,
-  "Tomato___Spider_mites Two-spotted_spider_mite": 1426,
+  "Tomato___Bacterial_spot": 2448,
+  "Tomato___Early_blight": 1329,
+  "Tomato___healthy": 1670,
+  "Tomato___Late_blight": 2233,
+  "Tomato___Leaf_Mold": 1320,
+  "Tomato___Septoria_leaf_spot": 2349,
+  "Tomato___Spider_mites Two-spotted_spider_mite": 1438,
   "Tomato___Target_Spot": 1178,
-  "Tomato___Tomato_mosaic_virus": 316,
-  "Tomato___Tomato_Yellow_Leaf_Curl_Virus": 4504,
+  "Tomato___Tomato_mosaic_virus": 580,
+  "Tomato___Tomato_Yellow_Leaf_Curl_Virus": 4924,
   "Cotton___Bacterial_blight": 600,
   "Cotton___Herbicide_damage": 600,
   "Cotton___Jassids": 600,
@@ -63,7 +63,7 @@
   },
   "Apple___healthy": {
    "n": 255,
-   "acc": 1.0
+   "acc": 0.996078431372549
   },
   "Cherry___healthy": {
    "n": 135,
@@ -71,11 +71,11 @@
   },
   "Cherry___Powdery_mildew": {
    "n": 147,
-   "acc": 0.9795918367346939
+   "acc": 0.9863945578231292
   },
   "Corn___Cercospora_leaf_spot Gray_leaf_spot": {
    "n": 86,
-   "acc": 0.8604651162790697
+   "acc": 0.8837209302325582
   },
   "Corn___Common_rust": {
    "n": 185,
@@ -83,11 +83,11 @@
   },
   "Corn___healthy": {
    "n": 167,
-   "acc": 0.9880239520958084
+   "acc": 0.9940119760479041
   },
   "Corn___Northern_Leaf_Blight": {
    "n": 153,
-   "acc": 0.954248366013072
+   "acc": 0.934640522875817
   },
   "Grape___Black_rot": {
    "n": 163,
@@ -95,19 +95,19 @@
   },
   "Grape___Esca_(Black_Measles)": {
    "n": 201,
-   "acc": 0.9651741293532339
+   "acc": 0.9800995024875622
   },
   "Grape___healthy": {
    "n": 58,
-   "acc": 0.9827586206896551
+   "acc": 0.9655172413793104
   },
   "Grape___Leaf_blight_(Isariopsis_Leaf_Spot)": {
    "n": 152,
-   "acc": 0.9868421052631579
+   "acc": 1.0
   },
   "Peach___Bacterial_spot": {
    "n": 343,
-   "acc": 0.9912536443148688
+   "acc": 0.9941690962099126
   },
   "Peach___healthy": {
    "n": 47,
@@ -115,7 +115,7 @@
   },
   "Pepper,_bell___Bacterial_spot": {
    "n": 149,
-   "acc": 0.9932885906040269
+   "acc": 0.9865771812080537
   },
   "Pepper,_bell___healthy": {
    "n": 231,
@@ -123,7 +123,7 @@
   },
   "Potato___Early_blight": {
    "n": 141,
-   "acc": 0.9787234042553191
+   "acc": 0.9929078014184397
   },
   "Potato___healthy": {
    "n": 22,
@@ -131,7 +131,7 @@
   },
   "Potato___Late_blight": {
    "n": 153,
-   "acc": 0.9738562091503268
+   "acc": 0.954248366013072
   },
   "Strawberry___healthy": {
    "n": 72,
@@ -143,35 +143,35 @@
   },
   "Tomato___Bacterial_spot": {
    "n": 285,
-   "acc": 0.8842105263157894
+   "acc": 0.8771929824561403
   },
   "Tomato___Early_blight": {
    "n": 145,
-   "acc": 0.7655172413793103
+   "acc": 0.7724137931034483
   },
   "Tomato___healthy": {
    "n": 251,
-   "acc": 0.9960159362549801
+   "acc": 1.0
   },
   "Tomato___Late_blight": {
    "n": 281,
-   "acc": 0.896797153024911
+   "acc": 0.9252669039145908
   },
   "Tomato___Leaf_Mold": {
    "n": 142,
-   "acc": 0.8873239436619719
+   "acc": 0.9436619718309859
   },
   "Tomato___Septoria_leaf_spot": {
    "n": 262,
-   "acc": 0.9351145038167938
+   "acc": 0.9427480916030534
   },
   "Tomato___Spider_mites Two-spotted_spider_mite": {
    "n": 250,
-   "acc": 0.948
+   "acc": 0.964
   },
   "Tomato___Target_Spot": {
    "n": 226,
-   "acc": 0.9026548672566371
+   "acc": 0.9557522123893806
   },
   "Tomato___Tomato_mosaic_virus": {
    "n": 57,
@@ -179,7 +179,7 @@
   },
   "Tomato___Tomato_Yellow_Leaf_Curl_Virus": {
    "n": 853,
-   "acc": 0.9202813599062134
+   "acc": 0.9472450175849941
   },
   "Cotton___Bacterial_blight": {
    "n": 38,
@@ -191,15 +191,15 @@
   },
   "Cotton___Jassids": {
    "n": 34,
-   "acc": 0.9411764705882353
+   "acc": 0.9117647058823529
   },
   "Cotton___Leaf_curl_virus": {
    "n": 65,
-   "acc": 0.9230769230769231
+   "acc": 0.9538461538461539
   },
   "Cotton___Leaf_reddening": {
    "n": 87,
-   "acc": 0.9655172413793104
+   "acc": 0.9770114942528736
   },
   "Cotton___Leaf_variegation": {
    "n": 17,
@@ -207,24 +207,30 @@
   },
   "Cotton___healthy": {
    "n": 39,
-   "acc": 0.9487179487179487
+   "acc": 1.0
   },
   "Other___not_leaf": {
    "n": 525,
-   "acc": 1.0
+   "acc": 0.9904761904761905
   },
   "Wheat___Septoria": {
    "n": 15,
-   "acc": 1.0
+   "acc": 0.9333333333333333
   },
   "Wheat___Stripe_rust": {
    "n": 31,
-   "acc": 0.967741935483871
+   "acc": 1.0
   },
   "Wheat___healthy": {
    "n": 15,
    "acc": 1.0
   }
  },
- "seconds": 5518.297158479691
+ "field": {
+  "n": 204,
+  "top1": 0.5931372549019608,
+  "top3": 0.8627450980392157,
+  "with_crop_hint": 0.7107843137254902
+ },
+ "seconds": 20962.304129362106
 }
