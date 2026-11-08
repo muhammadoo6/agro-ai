@@ -50,6 +50,7 @@ jobs:
           sed -i '' "s/tflite_version = '[0-9.]*'/tflite_version = '${{ inputs.tflite_ios }}'/" "$P/ios/tflite_flutter.podspec"
           grep -n "tflite_version =" "$P/ios/tflite_flutter.podspec"
           rm -rf ios/Pods ios/Podfile.lock
+          echo "--- TensorFlowLiteSwift ${{ inputs.tflite_ios }} on CocoaPods:"; pod trunk info TensorFlowLiteSwift 2>/dev/null | grep -E "^\s+- [0-9]" | tail -5 || true
 
       - name: Model test on iPhone simulator (must pass)
         run: flutter test integration_test/model_load_test.dart -d ${{ steps.sim.outputs.udid }} --dart-define=EDITION=offline
@@ -71,7 +72,23 @@ jobs:
           (cd ipa && zip -qr ../AgroAI-Offline-iOS-unsigned.ipa Payload)
           ls -la AgroAI-Offline-iOS-unsigned.ipa
 
+      # Онлайн-версия (Gemini, бесплатный ключ): отдельный bundle id и имя,
+      # чтобы на iPhone стояла рядом с офлайн-версией.
+      - name: Build iOS (online edition, no codesign)
+        run: |
+          sed -i '' 's/PRODUCT_BUNDLE_IDENTIFIER = tj.agroai.agroAi;/PRODUCT_BUNDLE_IDENTIFIER = tj.agroai.agroAi.online;/' ios/Runner.xcodeproj/project.pbxproj
+          plutil -replace CFBundleDisplayName -string "Agro AI Online" ios/Runner/Info.plist
+          flutter build ios --release --no-codesign --dart-define=EDITION=online
+          APP=build/ios/iphoneos/Runner.app
+          /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" -c "Print :CFBundleDisplayName" -c "Print :CFBundleShortVersionString" "$APP/Info.plist"
+          rm -rf ipa && mkdir -p ipa/Payload
+          cp -R "$APP" ipa/Payload/
+          (cd ipa && zip -qr ../AgroAI-Online-iOS-unsigned.ipa Payload)
+          ls -la AgroAI-Online-iOS-unsigned.ipa
+
       - uses: actions/upload-artifact@v4
         with:
           name: agro-ai-ios-unsigned
-          path: AgroAI-Offline-iOS-unsigned.ipa
+          path: |
+            AgroAI-Offline-iOS-unsigned.ipa
+            AgroAI-Online-iOS-unsigned.ipa

@@ -17,6 +17,9 @@ class GeminiApiClient {
 
   static const defaultModel = 'gemini-3.8-flash';
 
+  /// Запасная модель, если основную переименуют или уберут (HTTP 404).
+  static const fallbackModel = 'gemini-flash-latest';
+
   final http.Client _http;
   final String baseUrl;
 
@@ -70,6 +73,18 @@ class GeminiApiClient {
     }
 
     final text = utf8.decode(res.bodyBytes);
+    if (res.statusCode == 404 && model != fallbackModel) {
+      return analyzeImage(
+        apiKey: apiKey,
+        base64Image: base64Image,
+        mediaType: mediaType,
+        system: system,
+        prompt: prompt,
+        schema: schema,
+        model: fallbackModel,
+        timeout: timeout,
+      );
+    }
     if (res.statusCode != 200) {
       var msg = 'HTTP ${res.statusCode}';
       try {
