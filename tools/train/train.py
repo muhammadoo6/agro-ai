@@ -29,7 +29,7 @@ EXTRA = os.environ.get("EXTRA", "1") == "1"  # хлопок и пшеница
 # Маленькие полевые классы повторяем до этого числа примеров (аугментации разные).
 MIN_PER_CLASS = int(os.environ.get("MIN_PER_CLASS", "600"))
 PLANTDOC = os.environ.get("PLANTDOC", "1") == "1"  # полевые фото PlantDoc
-PD_REPEAT = int(os.environ.get("PD_REPEAT", "4"))  # во сколько раз повторить полевые фото
+PD_REPEAT = int(os.environ.get("PD_REPEAT", "6"))  # во сколько раз повторить полевые фото
 FINE_LAYERS = int(os.environ.get("FINE_LAYERS", "100"))  # сколько верхних слоёв дообучать
 
 # Культуры, полезные для Таджикистана.
