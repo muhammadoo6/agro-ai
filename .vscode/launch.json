@@ -1,0 +1,57 @@
+{
+  // Запуск: панель «Run and Debug» (Ctrl+Shift+D) → выбрать конфигурацию → F5.
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Agro AI — Online (Android)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": ["--flavor", "online"]
+    },
+    {
+      "name": "Agro AI — Offline (Android)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": ["--flavor", "offline"]
+    },
+    {
+      "name": "Тесты (все)",
+      "request": "launch",
+      "type": "dart",
+      "program": "test/"
+    },
+    {
+      "name": "Тест: путь фермера на телефоне",
+      "request": "launch",
+      "type": "dart",
+      "program": "integration_test/app_flow_test.dart",
+      "args": ["--flavor", "online"]
+    },
+    {
+      "name": "Тест: своя модель на телефоне",
+      "request": "launch",
+      "type": "dart",
+      "program": "integration_test/model_load_test.dart",
+      "args": ["--flavor", "offline"]
+    },
+    {
+      "name": "Python: проверить модель на полевых фото",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/tools/train/eval_field.py",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Python: обучение (быстрый пробный запуск)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/tools/train/train.py",
+      "cwd": "${workspaceFolder}",
+      "env": { "LIMIT": "200", "EPOCHS_HEAD": "1", "EPOCHS_FINE": "0" },
+      "console": "integratedTerminal"
+    }
+  ]
+}

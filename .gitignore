@@ -9,7 +9,11 @@ build/
 coverage/
 *.iml
 .idea/
-.vscode/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/settings.json
+.venv/
 *.log
 
 # Android

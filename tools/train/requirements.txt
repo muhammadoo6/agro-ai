@@ -1,0 +1,7 @@
+# Python 3.11 (TensorFlow ещё не поддерживает 3.13 на всех системах)
+tensorflow-cpu>=2.16,<2.21
+tensorflow-datasets>=4.9
+numpy<2.2
+pillow
+pyarrow
+importlib_resources
