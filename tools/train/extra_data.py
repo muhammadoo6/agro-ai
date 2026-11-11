@@ -252,9 +252,110 @@ def load_plantdoc(img):
     return res["train"][0], res["train"][1], res["test"][0], res["test"][1]
 
 
+# ---------------------------------------------------------------------------
+# Урожай (клубни, плоды, овощи): модель называет, ЧТО на фото — «это картофель».
+# * Fruit and Vegetable Image Recognition (реальные фото, 36 видов),
+#   зеркало HF: Nattakarn/fruit-and-vegetable-image-recognition
+# * Fruits-360 (Mureșan & Oltean, 2018), зеркало HF: PedroSampaio/fruits-360 (MIT)
+PRODUCE_SOURCES = [
+    ("Nattakarn/fruit-and-vegetable-image-recognition", "real"),
+    ("PedroSampaio/fruits-360", "f360"),
+]
+# Класс модели → названия в наборах (без регистра; для Fruits-360 — по началу имени).
+PRODUCE_MAP = {
+    "potato": {"real": ["potato"], "f360": ["potato red", "potato white"]},
+    "tomato": {"real": ["tomato"], "f360": ["tomato"]},
+    "cucumber": {"real": ["cucumber"], "f360": ["cucumber"]},
+    "onion": {"real": ["onion"], "f360": ["onion"]},
+    "carrot": {"real": ["carrot"], "f360": []},
+    "cabbage": {"real": ["cabbage"], "f360": []},
+    "eggplant": {"real": ["eggplant"], "f360": ["eggplant"]},
+    "pepper": {"real": ["bell pepper", "capsicum", "paprika"], "f360": ["pepper"]},
+    "watermelon": {"real": ["watermelon"], "f360": ["watermelon"]},
+    "melon": {"real": [], "f360": ["melon", "cantaloupe"]},
+    "apple": {"real": ["apple"], "f360": ["apple"]},
+    "grape": {"real": ["grapes"], "f360": ["grape "]},
+    "pomegranate": {"real": ["pomegranate"], "f360": ["pomegranate"]},
+    "apricot": {"real": [], "f360": ["apricot"]},
+    "peach": {"real": [], "f360": ["peach", "nectarine"]},
+    "pear": {"real": ["pear"], "f360": ["pear"]},
+    "corn": {"real": ["corn", "sweetcorn"], "f360": ["corn"]},
+    "garlic": {"real": ["garlic"], "f360": []},
+    "beetroot": {"real": ["beetroot"], "f360": ["beetroot"]},
+    "lemon": {"real": ["lemon"], "f360": ["lemon"]},
+    "banana": {"real": ["banana"], "f360": ["banana"]},
+    "cherry": {"real": [], "f360": ["cherry"]},
+    "strawberry": {"real": [], "f360": ["strawberry"]},
+    "walnut": {"real": [], "f360": ["walnut"]},
+    "radish": {"real": ["raddish"], "f360": []},
+    "turnip": {"real": ["turnip"], "f360": []},
+}
+PRODUCE_PREFIX = "Produce___"
+F360_MAX = int(os.environ.get("F360_MAX", "300"))  # студийные кадры похожи — берём часть
+REAL_MAX = int(os.environ.get("REAL_MAX", "400"))
+
+
+def _hf_info(repo):
+    import json
+    req = urllib.request.Request(f"https://huggingface.co/api/datasets/{repo}",
+                                 headers={"User-Agent": "agro-ai-trainer"})
+    with urllib.request.urlopen(req, timeout=120) as r:
+        j = json.load(r)
+    info = j["cardData"]["dataset_info"]
+    info = info[0] if isinstance(info, list) else info
+    names = None
+    for f in info["features"]:
+        if f.get("name") == "label":
+            names = f["dtype"]["class_label"]["names"]
+            if isinstance(names, dict):
+                names = [names[k] for k in sorted(names, key=lambda x: int(x))]
+    files = [s["rfilename"] for s in j["siblings"] if s["rfilename"].endswith(".parquet")]
+    return names, files
+
+
+def _produce_class(name, kind):
+    n = name.lower().strip()
+    for cls, m in PRODUCE_MAP.items():
+        for key in m[kind]:
+            if (n == key) if kind == "real" else (n + " ").startswith(key if key.endswith(" ") else key):
+                return PRODUCE_PREFIX + cls
+    return None
+
+
+def load_produce(img):
+    import pyarrow.parquet as pq
+    rng = np.random.default_rng(11)
+    xs, ys = [], []
+    for repo, kind in PRODUCE_SOURCES:
+        names, files = _hf_info(repo)
+        per = {}
+        for fn in files:
+            local = os.path.join(CACHE, repo.replace("/", "_"), os.path.basename(fn))
+            _download(f"https://huggingface.co/datasets/{repo}/resolve/main/{fn}", local)
+            pf = pq.ParquetFile(local)
+            for batch in pf.iter_batches(batch_size=256, columns=["image", "label"]):
+                for row in batch.to_pylist():
+                    cls = _produce_class(names[int(row["label"])], kind)
+                    if cls is None:
+                        continue
+                    per.setdefault(cls, []).append(row["image"]["bytes"])
+        cap = REAL_MAX if kind == "real" else F360_MAX
+        for cls, items in sorted(per.items()):
+            idx = rng.permutation(len(items))[:cap]
+            for i in idx:
+                try:
+                    xs.append(_jpeg(_prep(items[i], img)))
+                    ys.append(cls)
+                except Exception as e:  # noqa: BLE001
+                    print("skip produce image:", e)
+        per.clear()
+        print(f"produce {kind}:", {k: ys.count(k) for k in sorted(set(ys))})
+    return xs, ys
+
+
 def load_extra(img):
     xs, ys = [], []
-    for fn in (load_cotton, load_wheat, load_other):
+    for fn in (load_cotton, load_wheat, load_other, load_produce):
         a, b = fn(img)
         print(fn.__name__, len(a), {k: b.count(k) for k in sorted(set(b))})
         xs += a

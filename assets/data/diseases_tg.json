@@ -1,6 +1,6 @@
 {
-  "version": 1,
-  "source": "PlantVillage (Hughes & Salathé, 2015), CC BY-SA; SAR-CLD-2024 (Bishshash et al., 2024), CC BY 4.0; Wheat Leaf Dataset (Hayit, Mendeley Data), CC BY 4.0. Матни тавсияҳо: Agro AI.",
+  "version": 2,
+  "source": "PlantVillage (Hughes & Salathé, 2015), CC BY-SA; SAR-CLD-2024 (Bishshash et al., 2024), CC BY 4.0; Wheat Leaf Dataset (Hayit, Mendeley Data), CC BY 4.0. Урожай: Fruits-360 (Mureșan & Oltean, 2018); Fruit and Vegetable Image Recognition. Матни тавсияҳо: Agro AI.",
   "healthy_template": {
     "name_tg": "Растании солим",
     "name_ru": "Здоровое растение",
@@ -1019,6 +1019,118 @@
         "Севооборот",
         "Протравленные семена"
       ]
+    }
+  },
+  "produce": {
+    "potato": {
+      "tg": "Картошка",
+      "ru": "Картофель",
+      "guide": "potato"
+    },
+    "tomato": {
+      "tg": "Помидор",
+      "ru": "Помидор",
+      "guide": "tomato"
+    },
+    "cucumber": {
+      "tg": "Бодиринг",
+      "ru": "Огурец",
+      "guide": "cucumber"
+    },
+    "onion": {
+      "tg": "Пиёз",
+      "ru": "Лук",
+      "guide": "onion"
+    },
+    "carrot": {
+      "tg": "Сабзӣ",
+      "ru": "Морковь"
+    },
+    "cabbage": {
+      "tg": "Карам",
+      "ru": "Капуста"
+    },
+    "eggplant": {
+      "tg": "Бодимҷон",
+      "ru": "Баклажан"
+    },
+    "pepper": {
+      "tg": "Қаламфури булғорӣ",
+      "ru": "Сладкий перец"
+    },
+    "watermelon": {
+      "tg": "Тарбуз",
+      "ru": "Арбуз"
+    },
+    "melon": {
+      "tg": "Харбуза",
+      "ru": "Дыня",
+      "guide": "melon"
+    },
+    "apple": {
+      "tg": "Себ",
+      "ru": "Яблоко"
+    },
+    "grape": {
+      "tg": "Ангур",
+      "ru": "Виноград"
+    },
+    "pomegranate": {
+      "tg": "Анор",
+      "ru": "Гранат"
+    },
+    "apricot": {
+      "tg": "Зардолу",
+      "ru": "Абрикос",
+      "guide": "apricot"
+    },
+    "peach": {
+      "tg": "Шафтолу",
+      "ru": "Персик"
+    },
+    "pear": {
+      "tg": "Нок",
+      "ru": "Груша"
+    },
+    "corn": {
+      "tg": "Ҷуворимакка",
+      "ru": "Кукуруза"
+    },
+    "garlic": {
+      "tg": "Сир",
+      "ru": "Чеснок"
+    },
+    "beetroot": {
+      "tg": "Лаблабу",
+      "ru": "Свёкла"
+    },
+    "lemon": {
+      "tg": "Лимӯ",
+      "ru": "Лимон"
+    },
+    "banana": {
+      "tg": "Банан",
+      "ru": "Банан"
+    },
+    "cherry": {
+      "tg": "Олуболу / гелос",
+      "ru": "Вишня / черешня"
+    },
+    "strawberry": {
+      "tg": "Қулфинай",
+      "ru": "Клубника"
+    },
+    "walnut": {
+      "tg": "Чормағз",
+      "ru": "Грецкий орех"
+    },
+    "radish": {
+      "tg": "Турб",
+      "ru": "Редис"
+    },
+    "turnip": {
+      "tg": "Шалғам",
+      "ru": "Репа"
     }
   }
 }

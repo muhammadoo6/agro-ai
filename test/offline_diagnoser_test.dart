@@ -85,7 +85,11 @@ void main() {
   test('every label in the bundled model has text in the base', () {
     final f = File('assets/models/labels.json');
     final modelLabels = (jsonDecode(f.readAsStringSync())['labels'] as List).cast<String>();
-    for (final l in modelLabels.where((l) => !OfflineDiagnoser.isOther(l))) {
+    for (final l in modelLabels.where(OfflineDiagnoser.isProduce)) {
+      expect(base.produceName(l, 'tg'), isNot(DiseaseBase.produceKeyOf(l)), reason: l);
+      expect(base.produceName(l, 'ru'), isNot(DiseaseBase.produceKeyOf(l)), reason: l);
+    }
+    for (final l in modelLabels.where(OfflineDiagnoser.isLeafClass)) {
       expect(base.has(l), isTrue, reason: 'нет описания для $l');
       expect(base.info(l).treatmentIn('tg'), isNotEmpty, reason: l);
       expect(base.info(l).treatmentIn('ru'), isNotEmpty, reason: l);
@@ -162,5 +166,49 @@ void main() {
     expect(out[0], 10);
     expect(out[1], 200);
     expect(out[2], 30);
+  });
+
+  group('produce (clubs, fruits)', () {
+    const withProduce = [
+      'Potato___Late_blight',
+      'Potato___healthy',
+      'Other___not_leaf',
+      'Produce___potato',
+      'Produce___watermelon',
+    ];
+    OfflineDiagnoser od(List<double> p) =>
+        OfflineDiagnoser(FakeClassifier(withProduce, p), base);
+
+    test('tuber photo is named, even without leaf colour', () {
+      const p = [0.05, 0.05, 0.1, 0.75, 0.05];
+      final s = od(p).interpret(probs: p, imagePath: '/a.jpg', lang: 'ru', leafRatio: 0.0);
+      expect(s.isProduce, isTrue);
+      expect(s.diagnosis, 'Это: Картофель');
+      expect(s.cropName, 'Картофель');
+      expect(s.recommendations.join(' '), contains('ЛИСТ'));
+      expect(PlantScan.fromJson(s.toJson()).isProduce, isTrue);
+    });
+
+    test('tajik name and unknown-leaf advice for watermelon', () {
+      const p = [0.02, 0.02, 0.06, 0.1, 0.8];
+      final s = od(p).interpret(probs: p, imagePath: '/a.jpg', lang: 'tg');
+      expect(s.diagnosis, 'Ин: Тарбуз');
+      expect(s.recommendations.join(' '), contains('онлайн'));
+    });
+
+    test('weak produce guess does not hide a leaf disease', () {
+      const p = [0.6, 0.05, 0.05, 0.25, 0.05];
+      final s = od(p).interpret(probs: p, imagePath: '/a.jpg', lang: 'tg');
+      expect(s.isProduce, isFalse);
+      expect(s.diagnosis, 'Картошка: Фитофтороз');
+      expect(s.confidence, closeTo(0.6 / 0.7, 1e-9));
+    });
+
+    test('counts and lists exclude produce from diseases', () {
+      final d = od(const [0.2, 0.2, 0.2, 0.2, 0.2]);
+      expect(d.diseaseCount, 1);
+      expect(d.cropNames('ru'), ['Картофель']);
+      expect(d.produceNames('ru'), ['Картофель', 'Арбуз']);
+    });
   });
 }

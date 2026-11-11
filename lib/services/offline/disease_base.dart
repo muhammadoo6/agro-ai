@@ -32,9 +32,17 @@ class DiseaseInfo {
 
 class DiseaseBase {
   DiseaseBase._(Map<String, Map<String, dynamic>> diseases,
-      Map<String, Map<String, String>> crops, this._healthy)
+      Map<String, Map<String, String>> crops, this._healthy,
+      [Map<String, Map<String, String>> produce = const {}])
       : _diseases = {for (final e in diseases.entries) normalize(e.key): e.value},
-        _crops = {for (final e in crops.entries) normalize(e.key): e.value};
+        _crops = {for (final e in crops.entries) normalize(e.key): e.value},
+        _produce = {for (final e in produce.entries) e.key.toLowerCase(): e.value};
+
+  /// Классы урожая: «Produce___potato» — модель называет, что на фото (клубень, плод).
+  static const producePrefix = 'produce___';
+  static bool isProduce(String label) => label.toLowerCase().startsWith(producePrefix);
+  static String produceKeyOf(String label) =>
+      label.toLowerCase().substring(producePrefix.length);
 
   /// «Corn_(maize)___Common_rust_» и «Corn___Common_rust» → «corn___common_rust».
   static String normalize(String label) => label
@@ -49,6 +57,16 @@ class DiseaseBase {
   final Map<String, Map<String, dynamic>> _diseases;
   final Map<String, Map<String, String>> _crops;
   final Map<String, dynamic> _healthy;
+  final Map<String, Map<String, String>> _produce;
+
+  /// Название урожая: «Produce___potato» → «Картошка».
+  String produceName(String label, String lang) {
+    final e = _produce[produceKeyOf(label)];
+    return e?[lang] ?? e?['tg'] ?? produceKeyOf(label);
+  }
+
+  /// id роҳнамои зироат дар донишнома (crop_guides_tg.json), агар бошад.
+  String? produceGuide(String label) => _produce[produceKeyOf(label)]?['guide'];
 
   static Future<DiseaseBase> load([AssetBundle? bundle]) async =>
       parse(await (bundle ?? rootBundle).loadString(assetPath));
@@ -59,7 +77,10 @@ class DiseaseBase {
         (k, v) => MapEntry(k as String, Map<String, dynamic>.from(v as Map)));
     final crops = (j['crops'] as Map).map((k, v) =>
         MapEntry(k as String, Map<String, String>.from(v as Map)));
-    return DiseaseBase._(diseases, crops, Map<String, dynamic>.from(j['healthy_template'] as Map));
+    final produce = ((j['produce'] as Map?) ?? const {}).map((k, v) =>
+        MapEntry(k as String, Map<String, String>.from(v as Map)));
+    return DiseaseBase._(
+        diseases, crops, Map<String, dynamic>.from(j['healthy_template'] as Map), produce);
   }
 
   static String cropKeyOf(String label) => normalize(label).split('___').first;

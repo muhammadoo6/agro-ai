@@ -19,18 +19,28 @@ class OfflineDiagnoser {
   static const minLeafRatio = 0.08;
 
   static bool isOther(String label) => label.toLowerCase().startsWith('other');
+  static bool isProduce(String label) => DiseaseBase.isProduce(label);
+
+  /// Класс болезни или здорового листа (не «не лист» и не урожай).
+  static bool isLeafClass(String label) => !isOther(label) && !isProduce(label);
 
   int get diseaseCount => classifier.labels
-      .where((l) => !isOther(l) && !l.toLowerCase().endsWith('___healthy'))
+      .where((l) => isLeafClass(l) && !l.toLowerCase().endsWith('___healthy'))
       .length;
 
   List<String> cropNames(String lang) {
     final keys = <String>{
       for (final l in classifier.labels)
-        if (!isOther(l)) DiseaseBase.cropKeyOf(l),
+        if (isLeafClass(l)) DiseaseBase.cropKeyOf(l),
     };
     return [for (final k in keys) base.cropName(k, lang)];
   }
+
+  /// Урожай, который модель узнаёт по фото: картошка, помидор, огурец…
+  List<String> produceNames(String lang) => [
+        for (final l in classifier.labels)
+          if (isProduce(l)) base.produceName(l, lang),
+      ];
 
   Future<PlantScan> diagnose({
     required Uint8List imageBytes,
@@ -80,16 +90,37 @@ class OfflineDiagnoser {
                   'Снимите один больной лист крупно: он должен занимать большую часть кадра.',
                   'Снимайте при дневном свете, без вспышки.',
                   'Модель знает культуры: ${cropNames(lang).join(', ')}.',
+                  if (produceNames(lang).isNotEmpty)
+                    'По фото урожая модель узнаёт: ${produceNames(lang).join(', ')}.',
                 ]
               : [
                   'Модел бемориро аз рӯи БАРГ муайян мекунад. Лӯнда, мева, реша ва хокро арзёбӣ намекунад.',
                   'Як барги беморро наздик акс гиред: барг бояд қисми калони аксро гирад.',
                   'Дар рӯшноии рӯз, бе флеш акс гиред.',
                   'Модел ин зироатҳоро медонад: ${cropNames(lang).join(', ')}.',
+                  if (produceNames(lang).isNotEmpty)
+                    'Аз акси ҳосил модел инҳоро мешиносад: ${produceNames(lang).join(', ')}.',
                 ],
           prevention: const [],
           source: ScanSource.model,
         );
+
+    // 0) Урожай (клубень, плод, овощ): модель уверенно называет, что это.
+    if (labels.any(isProduce)) {
+      var best = -1;
+      for (var i = 0; i < p.length; i++) {
+        if (best < 0 || p[i] > p[best]) best = i;
+      }
+      if (best >= 0 && isProduce(labels[best]) && p[best] >= minConfidence) {
+        return _produceScan(labels[best], p[best].clamp(0.0, 1.0), imagePath, lang, plotId);
+      }
+      // Иначе урожай не рассматриваем: дальше — как раньше, только листья.
+      final sum = [for (var i = 0; i < p.length; i++) if (!isProduce(labels[i])) p[i]]
+          .fold<double>(0, (a, b) => a + b);
+      if (sum > 1e-6) {
+        p = [for (var i = 0; i < p.length; i++) isProduce(labels[i]) ? 0.0 : p[i] / sum];
+      }
+    }
 
     // 1) Почти нет цвета листа — не гадаем.
     if (leafRatio < minLeafRatio) return notLeaf();
@@ -177,6 +208,51 @@ class OfflineDiagnoser {
       symptoms: info.symptomsIn(lang),
       recommendations: info.treatmentIn(lang),
       prevention: info.preventionIn(lang),
+      source: ScanSource.model,
+    );
+  }
+
+  PlantScan _produceScan(
+      String label, double conf, String imagePath, String lang, String? plotId) {
+    final ru = lang == 'ru';
+    final name = base.produceName(label, lang);
+    final guide = base.produceGuide(label);
+    // Болезни листа этой культуры модель знает? (potato ↔ Potato___…, pepper ↔ Pepper,_bell___…)
+    final key = DiseaseBase.produceKeyOf(label);
+    final leafKnown = classifier.labels
+        .where(isLeafClass)
+        .map(DiseaseBase.cropKeyOf)
+        .any((c) => c.startsWith(key) || key.startsWith(c));
+    return PlantScan(
+      id: newId(),
+      imagePath: imagePath,
+      date: DateTime.now(),
+      plotId: plotId,
+      cropName: name,
+      diagnosis: ru ? 'Это: $name' : 'Ин: $name',
+      isHealthy: false,
+      isProduce: true,
+      confidence: conf,
+      severity: Severity.none,
+      symptoms: const [],
+      recommendations: ru
+          ? [
+              'Модель узнала урожай по фото: $name (уверенность ${(conf * 100).round()}%).',
+              if (leafKnown)
+                'Чтобы проверить болезни, сфотографируйте крупно ЛИСТ этого растения.'
+              else
+                'Болезни этой культуры модель пока не определяет — для совета используйте онлайн-версию.',
+              if (guide != null) 'Полное руководство по выращиванию — в разделе «Справочник».',
+            ]
+          : [
+              'Модел ҳосилро аз акс шинохт: $name (боварӣ ${(conf * 100).round()}%).',
+              if (leafKnown)
+                'Барои санҷиши беморӣ БАРГИ ҳамин растаниро наздик акс гиред.'
+              else
+                'Бемориҳои ин зироатро модел ҳоло муайян намекунад — барои маслиҳат версияи онлайнро истифода баред.',
+              if (guide != null) 'Роҳнамои пурраи парвариш — дар бахши «Донишнома».',
+            ],
+      prevention: const [],
       source: ScanSource.model,
     );
   }

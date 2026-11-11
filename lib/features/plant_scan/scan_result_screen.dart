@@ -25,7 +25,7 @@ class ScanResultScreen extends StatelessWidget {
     final offline = scan.source == ScanSource.offline;
     final statusColor = offline
         ? Colors.blueGrey
-        : scan.isHealthy
+        : scan.isHealthy || scan.isProduce
             ? AppColors.primary
             : AppColors.warning;
     final file = File(scan.imagePath);
@@ -74,7 +74,9 @@ class ScanResultScreen extends StatelessWidget {
                     ScanSource.offline => 'source_offline',
                   }),
                   color: Colors.blueGrey),
-              if (!offline && !(scan.source == ScanSource.model && scan.confidence < 0.55))
+              if (!offline &&
+                  !scan.isProduce &&
+                  !(scan.source == ScanSource.model && scan.confidence < 0.55))
                 Pill(l.t(scan.isHealthy ? 'healthy' : 'unhealthy'), color: statusColor),
               if (!offline && scan.severity != Severity.none)
                 Pill('${l.t('severity')}: ${l.severity(scan.severity)}',

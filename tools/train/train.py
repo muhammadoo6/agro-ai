@@ -210,7 +210,24 @@ for layer in base.layers:
         layer.trainable = False
 model.compile(optimizer=tf.keras.optimizers.Adam(1e-5),
               loss="sparse_categorical_crossentropy", metrics=["accuracy"])
-model.fit(train_ds, validation_data=val_ds, epochs=EPOCHS_FINE, class_weight=class_weight, verbose=2)
+TIME_BUDGET = int(os.environ.get("TIME_BUDGET", "19200"))  # GitHub обрывает задачу через 6 ч
+
+
+class StopBeforeTimeout(tf.keras.callbacks.Callback):
+    """Не начинать эпоху, если она не успеет закончиться — модель сохранится вовремя."""
+
+    def on_epoch_begin(self, epoch, logs=None):
+        self.t = time.time()
+
+    def on_epoch_end(self, epoch, logs=None):
+        took = time.time() - self.t
+        if time.time() - t0 + took > TIME_BUDGET:
+            print(f"time budget: stop after fine epoch {epoch + 1}")
+            self.model.stop_training = True
+
+
+model.fit(train_ds, validation_data=val_ds, epochs=EPOCHS_FINE, class_weight=class_weight,
+          verbose=2, callbacks=[StopBeforeTimeout()])
 print(f"fine-tune done in {time.time() - t0:.0f}s")
 
 # Оценка по классам.

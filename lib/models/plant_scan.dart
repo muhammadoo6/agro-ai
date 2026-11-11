@@ -22,6 +22,7 @@ class PlantScan {
     this.recommendations = const [],
     this.prevention = const [],
     this.source = ScanSource.ai,
+    this.isProduce = false,
   });
 
   final String id;
@@ -40,6 +41,9 @@ class PlantScan {
   final List<String> prevention;
   final ScanSource source;
 
+  /// На фото урожай (клубень, плод), а не лист: модель назвала, что это.
+  final bool isProduce;
+
   Map<String, dynamic> toJson() => {
         'id': id,
         'imagePath': imagePath,
@@ -54,6 +58,7 @@ class PlantScan {
         'recommendations': recommendations,
         'prevention': prevention,
         'source': source.name,
+        if (isProduce) 'isProduce': true,
       };
 
   factory PlantScan.fromJson(Map<String, dynamic> j) => PlantScan(
@@ -70,5 +75,6 @@ class PlantScan {
         recommendations: toStringList(j['recommendations']),
         prevention: toStringList(j['prevention']),
         source: enumFromName(ScanSource.values, j['source'], ScanSource.ai),
+        isProduce: j['isProduce'] == true,
       );
 }
