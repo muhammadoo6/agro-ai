@@ -51,5 +51,6 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
+          retention-days: 30
           name: plant-model
           path: out/

@@ -88,6 +88,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
+          retention-days: 7
           name: agro-ai-ios-unsigned
           path: |
             AgroAI-Offline-iOS-unsigned.ipa

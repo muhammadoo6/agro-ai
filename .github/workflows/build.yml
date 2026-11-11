@@ -44,6 +44,7 @@ jobs:
         if: ${{ steps.scaffold.outputs.done == 'true' }}
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 7
           name: scaffold
           path: scaffold/
           include-hidden-files: true
@@ -115,21 +116,25 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
+          retention-days: 7
           name: agro-ai-online-arm64
           path: build/app/outputs/flutter-apk/app-arm64-v8a-online-release.apk
 
       - uses: actions/upload-artifact@v4
         with:
+          retention-days: 7
           name: agro-ai-offline-arm64
           path: build/app/outputs/flutter-apk/app-arm64-v8a-offline-release.apk
 
       - uses: actions/upload-artifact@v4
         with:
+          retention-days: 7
           name: agro-ai-armv7
           path: build/app/outputs/flutter-apk/app-armeabi-v7a-*-release.apk
 
       - uses: actions/upload-artifact@v4
         with:
+          retention-days: 7
           name: agro-ai-aab
           path: build/app/outputs/bundle/*/*.aab
 
