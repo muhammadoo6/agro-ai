@@ -18,7 +18,7 @@ on:
         default: '100'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   train:
@@ -49,7 +49,16 @@ jobs:
           (while true; do echo "MON $(date +%T) mem=$(free -m | awk '/Mem/{print $3"/"$2}') swap=$(free -m | awk '/Swap/{print $3"/"$2}') disk=$(df -h / | awk 'NR==2{print $3"/"$2}')"; sleep 20; done) &
           python -u tools/train/train.py
 
+      # Release не занимает квоту артефактов — модель не потеряется.
+      - name: Save model as release
+        if: inputs.limit == '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "model-run${{ github.run_number }}"             out/plant_disease.tflite out/labels.json out/report.json             --prerelease --title "Model (run ${{ github.run_number }})" --notes "Offline model"
+
       - uses: actions/upload-artifact@v4
+        continue-on-error: true
         with:
           retention-days: 30
           name: plant-model
