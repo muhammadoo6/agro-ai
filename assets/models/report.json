@@ -1,6 +1,6 @@
 {
- "val_accuracy": 0.96445153801509,
- "tflite_sample_accuracy": 0.946875,
+ "val_accuracy": 0.9588249754178958,
+ "tflite_sample_accuracy": 0.9296875,
  "img": 224,
  "train_counts": {
   "Apple___Apple_scab": 1032,
@@ -44,6 +44,32 @@
   "Cotton___Leaf_variegation": 600,
   "Cotton___healthy": 600,
   "Other___not_leaf": 2975,
+  "Produce___apple": 600,
+  "Produce___apricot": 600,
+  "Produce___banana": 600,
+  "Produce___beetroot": 600,
+  "Produce___cabbage": 600,
+  "Produce___carrot": 600,
+  "Produce___cherry": 600,
+  "Produce___corn": 600,
+  "Produce___cucumber": 600,
+  "Produce___eggplant": 600,
+  "Produce___garlic": 600,
+  "Produce___grape": 600,
+  "Produce___lemon": 600,
+  "Produce___melon": 600,
+  "Produce___onion": 600,
+  "Produce___peach": 600,
+  "Produce___pear": 600,
+  "Produce___pepper": 600,
+  "Produce___pomegranate": 600,
+  "Produce___potato": 600,
+  "Produce___radish": 600,
+  "Produce___strawberry": 600,
+  "Produce___tomato": 600,
+  "Produce___turnip": 600,
+  "Produce___walnut": 600,
+  "Produce___watermelon": 600,
   "Wheat___Septoria": 600,
   "Wheat___Stripe_rust": 600,
   "Wheat___healthy": 600
@@ -51,7 +77,7 @@
  "per_class": {
   "Apple___Apple_scab": {
    "n": 96,
-   "acc": 0.9479166666666666
+   "acc": 0.9895833333333334
   },
   "Apple___Black_rot": {
    "n": 107,
@@ -59,7 +85,7 @@
   },
   "Apple___Cedar_apple_rust": {
    "n": 40,
-   "acc": 1.0
+   "acc": 0.975
   },
   "Apple___healthy": {
    "n": 255,
@@ -75,7 +101,7 @@
   },
   "Corn___Cercospora_leaf_spot Gray_leaf_spot": {
    "n": 86,
-   "acc": 0.8837209302325582
+   "acc": 0.9186046511627907
   },
   "Corn___Common_rust": {
    "n": 185,
@@ -87,7 +113,7 @@
   },
   "Corn___Northern_Leaf_Blight": {
    "n": 153,
-   "acc": 0.934640522875817
+   "acc": 0.9019607843137255
   },
   "Grape___Black_rot": {
    "n": 163,
@@ -99,7 +125,7 @@
   },
   "Grape___healthy": {
    "n": 58,
-   "acc": 0.9655172413793104
+   "acc": 0.9827586206896551
   },
   "Grape___Leaf_blight_(Isariopsis_Leaf_Spot)": {
    "n": 152,
@@ -107,7 +133,7 @@
   },
   "Peach___Bacterial_spot": {
    "n": 343,
-   "acc": 0.9941690962099126
+   "acc": 0.9825072886297376
   },
   "Peach___healthy": {
    "n": 47,
@@ -115,11 +141,11 @@
   },
   "Pepper,_bell___Bacterial_spot": {
    "n": 149,
-   "acc": 0.9865771812080537
+   "acc": 0.9731543624161074
   },
   "Pepper,_bell___healthy": {
    "n": 231,
-   "acc": 0.9913419913419913
+   "acc": 0.987012987012987
   },
   "Potato___Early_blight": {
    "n": 141,
@@ -131,7 +157,7 @@
   },
   "Potato___Late_blight": {
    "n": 153,
-   "acc": 0.954248366013072
+   "acc": 0.9477124183006536
   },
   "Strawberry___healthy": {
    "n": 72,
@@ -143,11 +169,11 @@
   },
   "Tomato___Bacterial_spot": {
    "n": 285,
-   "acc": 0.8771929824561403
+   "acc": 0.8701754385964913
   },
   "Tomato___Early_blight": {
    "n": 145,
-   "acc": 0.7724137931034483
+   "acc": 0.6896551724137931
   },
   "Tomato___healthy": {
    "n": 251,
@@ -155,23 +181,23 @@
   },
   "Tomato___Late_blight": {
    "n": 281,
-   "acc": 0.9252669039145908
+   "acc": 0.9181494661921709
   },
   "Tomato___Leaf_Mold": {
    "n": 142,
-   "acc": 0.9436619718309859
+   "acc": 0.9225352112676056
   },
   "Tomato___Septoria_leaf_spot": {
    "n": 262,
-   "acc": 0.9427480916030534
+   "acc": 0.9122137404580153
   },
   "Tomato___Spider_mites Two-spotted_spider_mite": {
    "n": 250,
-   "acc": 0.964
+   "acc": 0.932
   },
   "Tomato___Target_Spot": {
    "n": 226,
-   "acc": 0.9557522123893806
+   "acc": 0.9690265486725663
   },
   "Tomato___Tomato_mosaic_virus": {
    "n": 57,
@@ -179,7 +205,7 @@
   },
   "Tomato___Tomato_Yellow_Leaf_Curl_Virus": {
    "n": 853,
-   "acc": 0.9472450175849941
+   "acc": 0.9273153575615475
   },
   "Cotton___Bacterial_blight": {
    "n": 38,
@@ -191,11 +217,11 @@
   },
   "Cotton___Jassids": {
    "n": 34,
-   "acc": 0.9117647058823529
+   "acc": 1.0
   },
   "Cotton___Leaf_curl_virus": {
    "n": 65,
-   "acc": 0.9538461538461539
+   "acc": 0.9384615384615385
   },
   "Cotton___Leaf_reddening": {
    "n": 87,
@@ -213,13 +239,117 @@
    "n": 525,
    "acc": 0.9904761904761905
   },
+  "Produce___apple": {
+   "n": 55,
+   "acc": 0.9636363636363636
+  },
+  "Produce___apricot": {
+   "n": 45,
+   "acc": 1.0
+  },
+  "Produce___banana": {
+   "n": 56,
+   "acc": 1.0
+  },
+  "Produce___beetroot": {
+   "n": 58,
+   "acc": 0.9482758620689655
+  },
+  "Produce___cabbage": {
+   "n": 14,
+   "acc": 1.0
+  },
+  "Produce___carrot": {
+   "n": 12,
+   "acc": 0.8333333333333334
+  },
+  "Produce___cherry": {
+   "n": 45,
+   "acc": 0.9777777777777777
+  },
+  "Produce___corn": {
+   "n": 72,
+   "acc": 0.9583333333333334
+  },
+  "Produce___cucumber": {
+   "n": 59,
+   "acc": 1.0
+  },
+  "Produce___eggplant": {
+   "n": 58,
+   "acc": 0.9310344827586207
+  },
+  "Produce___garlic": {
+   "n": 14,
+   "acc": 1.0
+  },
+  "Produce___grape": {
+   "n": 60,
+   "acc": 0.9833333333333333
+  },
+  "Produce___lemon": {
+   "n": 57,
+   "acc": 1.0
+  },
+  "Produce___melon": {
+   "n": 45,
+   "acc": 1.0
+  },
+  "Produce___onion": {
+   "n": 59,
+   "acc": 0.9661016949152542
+  },
+  "Produce___peach": {
+   "n": 45,
+   "acc": 1.0
+  },
+  "Produce___pear": {
+   "n": 58,
+   "acc": 0.9655172413793104
+  },
+  "Produce___pepper": {
+   "n": 84,
+   "acc": 0.9404761904761905
+  },
+  "Produce___pomegranate": {
+   "n": 57,
+   "acc": 0.9649122807017544
+  },
+  "Produce___potato": {
+   "n": 57,
+   "acc": 0.9649122807017544
+  },
+  "Produce___radish": {
+   "n": 12,
+   "acc": 0.6666666666666666
+  },
+  "Produce___strawberry": {
+   "n": 45,
+   "acc": 1.0
+  },
+  "Produce___tomato": {
+   "n": 59,
+   "acc": 0.9830508474576272
+  },
+  "Produce___turnip": {
+   "n": 15,
+   "acc": 0.8666666666666667
+  },
+  "Produce___walnut": {
+   "n": 45,
+   "acc": 1.0
+  },
+  "Produce___watermelon": {
+   "n": 58,
+   "acc": 1.0
+  },
   "Wheat___Septoria": {
    "n": 15,
    "acc": 0.9333333333333333
   },
   "Wheat___Stripe_rust": {
    "n": 31,
-   "acc": 1.0
+   "acc": 0.967741935483871
   },
   "Wheat___healthy": {
    "n": 15,
@@ -228,9 +358,9 @@
  },
  "field": {
   "n": 204,
-  "top1": 0.5931372549019608,
-  "top3": 0.8627450980392157,
-  "with_crop_hint": 0.7107843137254902
+  "top1": 0.5980392156862745,
+  "top3": 0.8382352941176471,
+  "with_crop_hint": 0.6911764705882353
  },
- "seconds": 20962.304129362106
+ "seconds": 6259.746407747269
 }
