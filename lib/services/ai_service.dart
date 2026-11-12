@@ -20,6 +20,9 @@ class AiService {
   final ClaudeApiClient _client;
   final GeminiApiClient _gemini;
 
+  /// Проверка ключа Gemini: возвращает имя модели, которая ответила.
+  Future<String> checkGeminiKey(String key) => _gemini.checkKey(key.trim());
+
   static const _schema = {
     'type': 'object',
     'additionalProperties': false,

@@ -25,6 +25,15 @@ class L10n {
     return s;
   }
 
+  /// Понятный текст ошибки AI (коды из GeminiApiClient / ClaudeApiClient).
+  String aiError(String m) {
+    if (m == 'bad_key') return t('ai_err_bad_key');
+    if (m == 'region') return t('ai_err_region');
+    if (m == 'quota') return t('ai_err_quota');
+    if (m.startsWith('network')) return t('ai_err_network');
+    return m;
+  }
+
   static const Map<String, Map<String, String>> _strings = {
     'tg': {
       'app_name': 'Agro AI',
@@ -258,6 +267,15 @@ class L10n {
           'Калиди AI ворид нашудааст ё интернет нест. Дар Танзимот калидро ворид кунед, то таҳлили пурра гиред.',
       'scan_crop_hint': 'Зироат (агар маълум бошад)',
       'scan_error': 'Таҳлил нашуд: {0}',
+      'ai_err_bad_key':
+          'Google калидро қабул накард. Калидро аз aistudio.google.com/apikey аз нав пурра нусха кунед.',
+      'ai_err_region': 'Gemini дар ин минтақа кор намекунад (VPN лозим аст).',
+      'ai_err_quota': 'Лимити ройгони Gemini тамом шуд. Баъд аз 1 дақиқа ё фардо такрор кунед.',
+      'ai_err_network': 'Интернет нест ё суст аст.',
+      'key_checking': 'Калид санҷида мешавад…',
+      'key_ok': 'Калид кор мекунад ✓ (модел {0})',
+      'key_failed': 'Калид нигоҳ дошта шуд, аммо санҷиш нагузашт: {0}',
+      'key_check': 'Санҷиши калид',
       'ai_disclaimer':
           'Натиҷаи AI тахминӣ аст. Пеш аз истифодаи дору бо агроном маслиҳат кунед.',
       'severity': 'Дараҷа',
@@ -528,6 +546,15 @@ class L10n {
           'Ключ AI не введён или нет интернета. Введите ключ в Настройках для полного анализа.',
       'scan_crop_hint': 'Культура (если известна)',
       'scan_error': 'Анализ не удался: {0}',
+      'ai_err_bad_key':
+          'Google не принял ключ. Скопируйте его заново целиком с aistudio.google.com/apikey.',
+      'ai_err_region': 'Gemini недоступен в этом регионе (нужен VPN).',
+      'ai_err_quota': 'Бесплатный лимит Gemini исчерпан. Повторите через минуту или завтра.',
+      'ai_err_network': 'Нет интернета или он слишком медленный.',
+      'key_checking': 'Проверяю ключ…',
+      'key_ok': 'Ключ работает ✓ (модель {0})',
+      'key_failed': 'Ключ сохранён, но проверка не прошла: {0}',
+      'key_check': 'Проверить ключ',
       'ai_disclaimer':
           'Результат AI приблизительный. Перед применением препаратов посоветуйтесь с агрономом.',
       'severity': 'Степень',

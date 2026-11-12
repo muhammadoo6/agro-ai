@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/app_scope.dart';
 import '../../core/localization/app_strings.dart';
 import '../../core/validation/validators.dart';
+import '../../data/remote/claude_api_client.dart' show ClaudeApiException;
 import '../../data/repositories/settings_repository.dart';
 import '../../shared/widgets/common.dart';
 import '../home/home_screen.dart' show loadDemoFarm;
@@ -126,6 +127,13 @@ class SettingsScreen extends StatelessWidget {
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () => _editApiKey(context),
                     ),
+                    if (settings.aiProvider == AiProvider.gemini &&
+                        settings.hasApiKey)
+                      ListTile(
+                        leading: const Icon(Icons.wifi_tethering),
+                        title: Text(l.t('key_check')),
+                        onTap: () => _checkGeminiKey(context),
+                      ),
                   ],
                 ),
               ),
@@ -310,6 +318,23 @@ class SettingsScreen extends StatelessWidget {
       await s.settings.update(gemini
           ? s.settings.value.copyWith(geminiKey: result)
           : s.settings.value.copyWith(apiKey: result));
+      if (gemini && result.isNotEmpty && context.mounted) {
+        await _checkGeminiKey(context);
+      }
+    }
+  }
+
+  Future<void> _checkGeminiKey(BuildContext context) async {
+    final s = AppScope.of(context);
+    final l = context.l;
+    showSnack(context, l.t('key_checking'));
+    try {
+      final model = await s.ai.checkGeminiKey(s.settings.value.geminiKey);
+      if (context.mounted) showSnack(context, l.f('key_ok', [model]));
+    } on ClaudeApiException catch (e) {
+      if (context.mounted) {
+        showSnack(context, l.f('key_failed', [l.aiError(e.message)]));
+      }
     }
   }
 }

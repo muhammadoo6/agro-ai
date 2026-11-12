@@ -91,6 +91,101 @@ void main() {
     });
   });
 
+  group('GeminiApiClient model discovery', () {
+    http.Response ok(String text) => http.Response.bytes(
+        utf8.encode(jsonEncode({
+          'candidates': [
+            {
+              'finishReason': 'STOP',
+              'content': {
+                'parts': [
+                  {'text': text},
+                ],
+              },
+            },
+          ],
+        })),
+        200);
+
+    test('picks models the key can use and skips closed ones', () async {
+      final posted = <String>[];
+      final c = GeminiApiClient(httpClient: MockClient((r) async {
+        if (r.method == 'GET') {
+          return http.Response(
+              jsonEncode({
+                'models': [
+                  {'name': 'models/gemini-2.5-pro', 'supportedGenerationMethods': ['generateContent']},
+                  {'name': 'models/gemini-2.5-flash', 'supportedGenerationMethods': ['generateContent']},
+                  {'name': 'models/gemini-2.5-flash-lite', 'supportedGenerationMethods': ['generateContent']},
+                  {'name': 'models/text-embedding-004', 'supportedGenerationMethods': ['embedContent']},
+                ],
+              }),
+              200);
+        }
+        final model = r.url.pathSegments.last.split(':').first;
+        posted.add(model);
+        if (model == 'gemini-2.5-flash') {
+          return http.Response('{"error":{"status":"RESOURCE_EXHAUSTED","message":"limit 0"}}', 429);
+        }
+        return ok('{"diagnosis":"ok"}');
+      }));
+      final out = await c.analyzeImage(apiKey: 'AQ.${'x' * 40}', base64Image: 'A',
+          mediaType: 'image/jpeg', system: 's', prompt: 'p', schema: const {});
+      expect(out['diagnosis'], 'ok');
+      expect(posted, ['gemini-2.5-flash', 'gemini-2.5-flash-lite']);
+      // Рабочая модель запоминается.
+      posted.clear();
+      await c.analyzeImage(apiKey: 'AQ.${'x' * 40}', base64Image: 'A',
+          mediaType: 'image/jpeg', system: 's', prompt: 'p', schema: const {});
+      expect(posted, ['gemini-2.5-flash-lite']);
+    });
+
+    test('invalid key stops at once with bad_key', () async {
+      var calls = 0;
+      final c = GeminiApiClient(httpClient: MockClient((r) async {
+        calls++;
+        return http.Response(
+            '{"error":{"status":"INVALID_ARGUMENT","message":"API key not valid. Please pass a valid API key."}}',
+            400);
+      }));
+      await expectLater(
+        c.checkKey('AIza${'x' * 35}'),
+        throwsA(isA<ClaudeApiException>().having((e) => e.message, 'm', 'bad_key')),
+      );
+      expect(calls, 1);
+    });
+
+    test('checkKey falls back to known names when list fails', () async {
+      final c = GeminiApiClient(httpClient: MockClient((r) async {
+        if (r.method == 'GET') return http.Response('oops', 503);
+        final model = r.url.pathSegments.last.split(':').first;
+        if (model == GeminiApiClient.defaultModel) {
+          return http.Response('{"error":{"status":"NOT_FOUND","message":"no"}}', 404);
+        }
+        return ok('hi');
+      }));
+      expect(await c.checkKey('AIza${'x' * 35}'), GeminiApiClient.fallbackModel);
+    });
+
+    test('schema rejected -> retries with plain JSON and strips code fence', () async {
+      final bodies = <Map<String, dynamic>>[];
+      final c = GeminiApiClient(httpClient: MockClient((r) async {
+        if (r.method == 'GET') return http.Response('{"models":[]}', 200);
+        final b = jsonDecode(r.body) as Map<String, dynamic>;
+        bodies.add(b);
+        if ((b['generationConfig'] as Map).containsKey('responseSchema')) {
+          return http.Response('{"error":{"status":"INVALID_ARGUMENT","message":"schema"}}', 400);
+        }
+        return ok('```json\n{"diagnosis":"x"}\n```');
+      }));
+      final out = await c.analyzeImage(apiKey: 'AIza${'x' * 35}', base64Image: 'A',
+          mediaType: 'image/jpeg', system: 's', prompt: 'p',
+          schema: const {'type': 'object', 'properties': {'diagnosis': {'type': 'string'}}});
+      expect(out['diagnosis'], 'x');
+      expect(bodies.length, 2);
+    });
+  });
+
   test('settings: provider and per-provider keys persist', () async {
     final store = MemoryStore();
     final s = SettingsRepository(store);

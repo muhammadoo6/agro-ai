@@ -88,7 +88,7 @@ class _PlantScanScreenState extends State<PlantScanScreen> {
         // Хатои шабака — маслиҳати офлайн, то деҳқон бе ҷавоб намонад.
         // Показываем причину (нет сети, лимит, неверный ключ) и не оставляем
         // фермера без ответа — распознаём своей моделью.
-        if (mounted) showSnack(context, l.f('scan_error', [e.message]));
+        if (mounted) showSnack(context, l.f('scan_error', [l.aiError(e.message)]));
         result = offline != null
             ? await offline.diagnose(
                 imageBytes: await saved.readAsBytes(),
