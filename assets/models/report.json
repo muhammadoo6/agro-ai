@@ -1,6 +1,6 @@
 {
- "val_accuracy": 0.9588249754178958,
- "tflite_sample_accuracy": 0.9296875,
+ "val_accuracy": 0.9490364025695931,
+ "tflite_sample_accuracy": 0.9234375,
  "img": 224,
  "train_counts": {
   "Apple___Apple_scab": 1032,
@@ -46,26 +46,54 @@
   "Other___not_leaf": 2975,
   "Produce___apple": 600,
   "Produce___apricot": 600,
+  "Produce___avocado": 600,
   "Produce___banana": 600,
   "Produce___beetroot": 600,
+  "Produce___blueberry": 600,
   "Produce___cabbage": 600,
   "Produce___carrot": 600,
+  "Produce___cauliflower": 600,
   "Produce___cherry": 600,
+  "Produce___chestnut": 600,
+  "Produce___chilli": 600,
+  "Produce___coconut": 600,
   "Produce___corn": 600,
   "Produce___cucumber": 600,
+  "Produce___currant": 600,
+  "Produce___dates": 600,
   "Produce___eggplant": 600,
+  "Produce___fig": 600,
   "Produce___garlic": 600,
+  "Produce___ginger": 600,
   "Produce___grape": 600,
+  "Produce___grapefruit": 600,
+  "Produce___hazelnut": 600,
+  "Produce___kiwi": 600,
+  "Produce___kohlrabi": 600,
   "Produce___lemon": 600,
+  "Produce___lettuce": 600,
+  "Produce___mandarin": 600,
+  "Produce___mango": 600,
   "Produce___melon": 600,
+  "Produce___mulberry": 600,
   "Produce___onion": 600,
+  "Produce___orange": 600,
   "Produce___peach": 600,
   "Produce___pear": 600,
+  "Produce___peas": 600,
   "Produce___pepper": 600,
+  "Produce___persimmon": 600,
+  "Produce___pineapple": 600,
+  "Produce___plum": 600,
   "Produce___pomegranate": 600,
   "Produce___potato": 600,
+  "Produce___quince": 600,
   "Produce___radish": 600,
+  "Produce___raspberry": 600,
+  "Produce___soybean": 600,
+  "Produce___spinach": 600,
   "Produce___strawberry": 600,
+  "Produce___sweet_potato": 600,
   "Produce___tomato": 600,
   "Produce___turnip": 600,
   "Produce___walnut": 600,
@@ -77,7 +105,7 @@
  "per_class": {
   "Apple___Apple_scab": {
    "n": 96,
-   "acc": 0.9895833333333334
+   "acc": 0.9375
   },
   "Apple___Black_rot": {
    "n": 107,
@@ -101,19 +129,19 @@
   },
   "Corn___Cercospora_leaf_spot Gray_leaf_spot": {
    "n": 86,
-   "acc": 0.9186046511627907
+   "acc": 0.7790697674418605
   },
   "Corn___Common_rust": {
    "n": 185,
-   "acc": 0.9945945945945946
+   "acc": 1.0
   },
   "Corn___healthy": {
    "n": 167,
-   "acc": 0.9940119760479041
+   "acc": 0.9880239520958084
   },
   "Corn___Northern_Leaf_Blight": {
    "n": 153,
-   "acc": 0.9019607843137255
+   "acc": 0.9607843137254902
   },
   "Grape___Black_rot": {
    "n": 163,
@@ -121,7 +149,7 @@
   },
   "Grape___Esca_(Black_Measles)": {
    "n": 201,
-   "acc": 0.9800995024875622
+   "acc": 0.9601990049751243
   },
   "Grape___healthy": {
    "n": 58,
@@ -129,11 +157,11 @@
   },
   "Grape___Leaf_blight_(Isariopsis_Leaf_Spot)": {
    "n": 152,
-   "acc": 1.0
+   "acc": 0.993421052631579
   },
   "Peach___Bacterial_spot": {
    "n": 343,
-   "acc": 0.9825072886297376
+   "acc": 0.9766763848396501
   },
   "Peach___healthy": {
    "n": 47,
@@ -141,7 +169,7 @@
   },
   "Pepper,_bell___Bacterial_spot": {
    "n": 149,
-   "acc": 0.9731543624161074
+   "acc": 0.9530201342281879
   },
   "Pepper,_bell___healthy": {
    "n": 231,
@@ -165,15 +193,15 @@
   },
   "Strawberry___Leaf_scorch": {
    "n": 129,
-   "acc": 0.9922480620155039
+   "acc": 0.9844961240310077
   },
   "Tomato___Bacterial_spot": {
    "n": 285,
-   "acc": 0.8701754385964913
+   "acc": 0.8526315789473684
   },
   "Tomato___Early_blight": {
    "n": 145,
-   "acc": 0.6896551724137931
+   "acc": 0.6206896551724138
   },
   "Tomato___healthy": {
    "n": 251,
@@ -181,7 +209,7 @@
   },
   "Tomato___Late_blight": {
    "n": 281,
-   "acc": 0.9181494661921709
+   "acc": 0.8718861209964412
   },
   "Tomato___Leaf_Mold": {
    "n": 142,
@@ -189,27 +217,27 @@
   },
   "Tomato___Septoria_leaf_spot": {
    "n": 262,
-   "acc": 0.9122137404580153
+   "acc": 0.8816793893129771
   },
   "Tomato___Spider_mites Two-spotted_spider_mite": {
    "n": 250,
-   "acc": 0.932
+   "acc": 0.92
   },
   "Tomato___Target_Spot": {
    "n": 226,
-   "acc": 0.9690265486725663
+   "acc": 0.9247787610619469
   },
   "Tomato___Tomato_mosaic_virus": {
    "n": 57,
-   "acc": 0.9649122807017544
+   "acc": 0.9473684210526315
   },
   "Tomato___Tomato_Yellow_Leaf_Curl_Virus": {
    "n": 853,
-   "acc": 0.9273153575615475
+   "acc": 0.8851113716295428
   },
   "Cotton___Bacterial_blight": {
    "n": 38,
-   "acc": 1.0
+   "acc": 0.9736842105263158
   },
   "Cotton___Herbicide_damage": {
    "n": 42,
@@ -217,15 +245,15 @@
   },
   "Cotton___Jassids": {
    "n": 34,
-   "acc": 1.0
+   "acc": 0.9705882352941176
   },
   "Cotton___Leaf_curl_virus": {
    "n": 65,
-   "acc": 0.9384615384615385
+   "acc": 0.9538461538461539
   },
   "Cotton___Leaf_reddening": {
    "n": 87,
-   "acc": 0.9770114942528736
+   "acc": 0.9425287356321839
   },
   "Cotton___Leaf_variegation": {
    "n": 17,
@@ -233,17 +261,21 @@
   },
   "Cotton___healthy": {
    "n": 39,
-   "acc": 1.0
+   "acc": 0.9743589743589743
   },
   "Other___not_leaf": {
    "n": 525,
-   "acc": 0.9904761904761905
+   "acc": 0.9923809523809524
   },
   "Produce___apple": {
    "n": 55,
-   "acc": 0.9636363636363636
+   "acc": 0.9818181818181818
   },
   "Produce___apricot": {
+   "n": 45,
+   "acc": 1.0
+  },
+  "Produce___avocado": {
    "n": 45,
    "acc": 1.0
   },
@@ -253,7 +285,11 @@
   },
   "Produce___beetroot": {
    "n": 58,
-   "acc": 0.9482758620689655
+   "acc": 0.9827586206896551
+  },
+  "Produce___blueberry": {
+   "n": 45,
+   "acc": 1.0
   },
   "Produce___cabbage": {
    "n": 14,
@@ -263,41 +299,109 @@
    "n": 12,
    "acc": 0.8333333333333334
   },
+  "Produce___cauliflower": {
+   "n": 57,
+   "acc": 0.9649122807017544
+  },
   "Produce___cherry": {
    "n": 45,
-   "acc": 0.9777777777777777
+   "acc": 1.0
+  },
+  "Produce___chestnut": {
+   "n": 45,
+   "acc": 1.0
+  },
+  "Produce___chilli": {
+   "n": 26,
+   "acc": 0.6538461538461539
+  },
+  "Produce___coconut": {
+   "n": 45,
+   "acc": 1.0
   },
   "Produce___corn": {
    "n": 72,
-   "acc": 0.9583333333333334
+   "acc": 1.0
   },
   "Produce___cucumber": {
    "n": 59,
+   "acc": 0.9661016949152542
+  },
+  "Produce___currant": {
+   "n": 45,
+   "acc": 1.0
+  },
+  "Produce___dates": {
+   "n": 45,
    "acc": 1.0
   },
   "Produce___eggplant": {
    "n": 58,
-   "acc": 0.9310344827586207
+   "acc": 1.0
+  },
+  "Produce___fig": {
+   "n": 45,
+   "acc": 1.0
   },
   "Produce___garlic": {
    "n": 14,
-   "acc": 1.0
+   "acc": 0.9285714285714286
+  },
+  "Produce___ginger": {
+   "n": 55,
+   "acc": 0.9272727272727272
   },
   "Produce___grape": {
    "n": 60,
-   "acc": 0.9833333333333333
+   "acc": 0.95
+  },
+  "Produce___grapefruit": {
+   "n": 45,
+   "acc": 1.0
+  },
+  "Produce___hazelnut": {
+   "n": 45,
+   "acc": 1.0
+  },
+  "Produce___kiwi": {
+   "n": 58,
+   "acc": 0.9827586206896551
+  },
+  "Produce___kohlrabi": {
+   "n": 45,
+   "acc": 1.0
   },
   "Produce___lemon": {
    "n": 57,
+   "acc": 0.9824561403508771
+  },
+  "Produce___lettuce": {
+   "n": 15,
+   "acc": 0.8666666666666667
+  },
+  "Produce___mandarin": {
+   "n": 45,
    "acc": 1.0
+  },
+  "Produce___mango": {
+   "n": 58,
+   "acc": 0.9482758620689655
   },
   "Produce___melon": {
    "n": 45,
    "acc": 1.0
   },
+  "Produce___mulberry": {
+   "n": 45,
+   "acc": 1.0
+  },
   "Produce___onion": {
    "n": 59,
-   "acc": 0.9661016949152542
+   "acc": 1.0
+  },
+  "Produce___orange": {
+   "n": 55,
+   "acc": 0.8727272727272727
   },
   "Produce___peach": {
    "n": 45,
@@ -305,27 +409,63 @@
   },
   "Produce___pear": {
    "n": 58,
-   "acc": 0.9655172413793104
+   "acc": 0.9137931034482759
+  },
+  "Produce___peas": {
+   "n": 15,
+   "acc": 1.0
   },
   "Produce___pepper": {
    "n": 84,
-   "acc": 0.9404761904761905
+   "acc": 0.9047619047619048
+  },
+  "Produce___persimmon": {
+   "n": 45,
+   "acc": 1.0
+  },
+  "Produce___pineapple": {
+   "n": 60,
+   "acc": 1.0
+  },
+  "Produce___plum": {
+   "n": 45,
+   "acc": 1.0
   },
   "Produce___pomegranate": {
    "n": 57,
-   "acc": 0.9649122807017544
+   "acc": 0.9824561403508771
   },
   "Produce___potato": {
    "n": 57,
-   "acc": 0.9649122807017544
+   "acc": 0.9122807017543859
+  },
+  "Produce___quince": {
+   "n": 45,
+   "acc": 1.0
   },
   "Produce___radish": {
    "n": 12,
-   "acc": 0.6666666666666666
+   "acc": 0.9166666666666666
+  },
+  "Produce___raspberry": {
+   "n": 45,
+   "acc": 1.0
+  },
+  "Produce___soybean": {
+   "n": 15,
+   "acc": 0.8666666666666667
+  },
+  "Produce___spinach": {
+   "n": 15,
+   "acc": 0.7333333333333333
   },
   "Produce___strawberry": {
    "n": 45,
    "acc": 1.0
+  },
+  "Produce___sweet_potato": {
+   "n": 55,
+   "acc": 0.9818181818181818
   },
   "Produce___tomato": {
    "n": 59,
@@ -345,7 +485,7 @@
   },
   "Wheat___Septoria": {
    "n": 15,
-   "acc": 0.9333333333333333
+   "acc": 1.0
   },
   "Wheat___Stripe_rust": {
    "n": 31,
@@ -359,8 +499,8 @@
  "field": {
   "n": 204,
   "top1": 0.5980392156862745,
-  "top3": 0.8382352941176471,
-  "with_crop_hint": 0.6911764705882353
+  "top3": 0.8578431372549019,
+  "with_crop_hint": 0.7009803921568627
  },
- "seconds": 6259.746407747269
+ "seconds": 12641.56513428688
 }
