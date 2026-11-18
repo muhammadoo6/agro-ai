@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:agro_ai/data/local/farm_store.dart';
@@ -34,7 +35,7 @@ void main() {
         File('assets/data/crop_guides_tg.json').readAsStringSync());
 
     test('all guides are complete', () {
-      expect(kb.guides.length, greaterThanOrEqualTo(8));
+      expect(kb.guides.length, greaterThanOrEqualTo(30));
       final ids = <String>{};
       for (final g in kb.guides) {
         expect(ids.add(g.id), isTrue, reason: 'duplicate id ${g.id}');
@@ -52,6 +53,30 @@ void main() {
       expect(kb.findByName('гандуми тирамоҳӣ')?.id, 'wheat');
       expect(kb.findByName(''), isNull);
       expect(kb.findByName('ананас'), isNull);
+      expect(kb.findByName('Олуболу')?.id, 'cherry');
+      expect(kb.findByName('Олу')?.id, 'plum');
+      expect(kb.findByName('Зардолу')?.id, 'apricot');
+    });
+
+    test('every guide is in a named section', () {
+      expect(kb.categories, containsAll(['Мевагӣ', 'Сабзавот', 'Ангур ва буттамева', 'Ғалладона']));
+      for (final c in kb.categories) {
+        expect(kb.inCategory(c), isNotEmpty, reason: c);
+        expect(KnowledgeBase.categoryRu[c], isNotNull, reason: c);
+        expect(KnowledgeBase.categoryIcon[c], isNotNull, reason: c);
+      }
+      expect(kb.inCategory('Мевагӣ').map((g) => g.id), containsAll(['apple', 'apricot', 'plum']));
+      expect(KnowledgeBase.categoryLabel('Мевагӣ', 'ru'), 'Фрукты');
+      expect(kb.guides.map((g) => g.category).toSet().length, kb.categories.length);
+    });
+
+    test('produce guides point to existing articles', () {
+      final d = jsonDecode(File('assets/data/diseases_tg.json').readAsStringSync()) as Map;
+      final ids = kb.guides.map((g) => g.id).toSet();
+      for (final e in (d['produce'] as Map).entries) {
+        final g = (e.value as Map)['guide'];
+        if (g != null) expect(ids, contains(g), reason: e.key);
+      }
     });
   });
 }

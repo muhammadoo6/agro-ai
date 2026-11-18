@@ -87,9 +87,43 @@ class CropDisease {
 
 /// Боркунии донишнома аз `assets/data/crop_guides_tg.json`.
 class KnowledgeBase {
-  KnowledgeBase(this.guides);
+  KnowledgeBase(this.guides, [List<String> categories = const []])
+      : categories = {...categories, for (final g in guides) g.category}.toList();
 
   final List<CropGuide> guides;
+
+  /// Бахшҳо (Мевагӣ, Сабзавот, …) бо тартиби намоиш.
+  final List<String> categories;
+
+  /// Номи бахш ба русӣ (матни роҳнамоҳо тоҷикӣ мемонад).
+  static const categoryRu = {
+    'Ғалладона': 'Зерновые',
+    'Сабзавот': 'Овощи',
+    'Полизӣ': 'Бахчевые',
+    'Мевагӣ': 'Фрукты',
+    'Ангур ва буттамева': 'Виноград и ягоды',
+    'Чормағз ва бодом': 'Орехи',
+    'Лӯбиёгиҳо': 'Бобовые',
+    'Зироати техникӣ': 'Технические',
+    'Хӯроки чорво': 'Кормовые',
+  };
+
+  static const categoryIcon = {
+    'Ғалладона': '🌾',
+    'Сабзавот': '🥕',
+    'Полизӣ': '🍉',
+    'Мевагӣ': '🍎',
+    'Ангур ва буттамева': '🍇',
+    'Чормағз ва бодом': '🌰',
+    'Лӯбиёгиҳо': '🫘',
+    'Зироати техникӣ': '☁️',
+    'Хӯроки чорво': '🌿',
+  };
+
+  static String categoryLabel(String c, String lang) =>
+      lang == 'ru' ? (categoryRu[c] ?? c) : c;
+
+  List<CropGuide> inCategory(String c) => guides.where((g) => g.category == c).toList();
 
   static const assetPath = 'assets/data/crop_guides_tg.json';
 
@@ -103,7 +137,8 @@ class KnowledgeBase {
     final list = (j['crops'] as List)
         .map((e) => CropGuide.fromJson(Map<String, dynamic>.from(e as Map)))
         .toList();
-    return KnowledgeBase(list);
+    final cats = ((j['categories'] as List?) ?? const []).map((e) => '$e').toList();
+    return KnowledgeBase(list, cats);
   }
 
   List<CropGuide> search(String q) => guides.where((g) => g.matches(q)).toList();
