@@ -7,6 +7,7 @@ class CropGuide {
   const CropGuide({
     required this.id,
     required this.name,
+    this.nameRu = '',
     required this.latin,
     required this.icon,
     required this.category,
@@ -23,6 +24,9 @@ class CropGuide {
 
   final String id;
   final String name;
+
+  /// Номи русӣ — барои ҷустуҷӯ ва интерфейси русӣ.
+  final String nameRu;
   final String latin;
   final String icon;
   final String category;
@@ -42,6 +46,7 @@ class CropGuide {
     final s = q.trim().toLowerCase();
     if (s.isEmpty) return true;
     return name.toLowerCase().contains(s) ||
+        nameRu.toLowerCase().contains(s) ||
         latin.toLowerCase().contains(s) ||
         category.toLowerCase().contains(s) ||
         diseases.any((d) => d.name.toLowerCase().contains(s));
@@ -50,6 +55,7 @@ class CropGuide {
   factory CropGuide.fromJson(Map<String, dynamic> j) => CropGuide(
         id: j['id'] as String,
         name: j['name'] as String,
+        nameRu: (j['name_ru'] as String?) ?? '',
         latin: (j['latin'] as String?) ?? '',
         icon: (j['icon'] as String?) ?? '🌱',
         category: (j['category'] as String?) ?? '',
@@ -148,7 +154,7 @@ class KnowledgeBase {
     if (name == null || name.trim().isEmpty) return null;
     final s = name.trim().toLowerCase();
     for (final g in guides) {
-      if (g.name.toLowerCase() == s || g.id == s) return g;
+      if (g.name.toLowerCase() == s || g.nameRu.toLowerCase() == s || g.id == s) return g;
     }
     for (final g in guides) {
       if (g.name.toLowerCase().contains(s) || s.contains(g.name.toLowerCase())) {

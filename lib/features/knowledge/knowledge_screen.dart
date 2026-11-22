@@ -101,7 +101,10 @@ class _GuideTile extends StatelessWidget {
           child: ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             leading: Text(g.icon, style: const TextStyle(fontSize: 32)),
-            title: Text(g.name, style: const TextStyle(fontWeight: FontWeight.w700)),
+            title: Text(
+              context.l.lang == 'ru' && g.nameRu.isNotEmpty ? '${g.name} · ${g.nameRu}' : g.name,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
             subtitle: Text(
               '${g.latin}\n${g.summary}',
               maxLines: 3,

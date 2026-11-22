@@ -210,5 +210,15 @@ void main() {
       expect(d.cropNames('ru'), ['Картофель']);
       expect(d.produceNames('ru'), ['Картофель', 'Арбуз']);
     });
+
+    test('grapefruit is not mistaken for grape leaves', () {
+      const labels = ['Grape___Black_rot', 'Grape___healthy', 'Produce___grapefruit', 'Produce___grape'];
+      final g = OfflineDiagnoser(FakeClassifier(labels, const [0.05, 0.05, 0.85, 0.05]), base)
+          .interpret(probs: const [0.05, 0.05, 0.85, 0.05], imagePath: '/a.jpg', lang: 'ru');
+      expect(g.recommendations.join(' '), contains('онлайн'));
+      final v = OfflineDiagnoser(FakeClassifier(labels, const [0.05, 0.05, 0.05, 0.85]), base)
+          .interpret(probs: const [0.05, 0.05, 0.05, 0.85], imagePath: '/a.jpg', lang: 'ru');
+      expect(v.recommendations.join(' '), contains('ЛИСТ'));
+    });
   });
 }

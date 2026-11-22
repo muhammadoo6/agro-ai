@@ -56,6 +56,13 @@ void main() {
       expect(kb.findByName('Олуболу')?.id, 'cherry');
       expect(kb.findByName('Олу')?.id, 'plum');
       expect(kb.findByName('Зардолу')?.id, 'apricot');
+      expect(kb.findByName('Слива')?.id, 'plum');
+      expect(kb.findByName('Хлопок')?.id, 'cotton');
+      expect(kb.findByName('Вишня / черешня')?.id, 'cherry');
+      expect(kb.search('люцерна').single.id, 'alfalfa');
+      for (final g in kb.guides) {
+        expect(g.nameRu, isNotEmpty, reason: g.id);
+      }
     });
 
     test('every guide is in a named section', () {

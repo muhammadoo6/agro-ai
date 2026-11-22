@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../core/app_scope.dart';
 import '../../core/localization/app_strings.dart';
 import '../../core/localization/labels.dart';
+import '../../core/navigation/app_router.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/formatters.dart';
 import '../../models/plant_scan.dart';
@@ -116,6 +117,15 @@ class ScanResultScreen extends StatelessWidget {
               icon: Icons.medical_services_outlined,
               items: scan.recommendations),
           _Section(title: l.t('prevention'), icon: Icons.shield_outlined, items: scan.prevention),
+          if (s.knowledge.findByName(scan.cropName) case final guide?) ...[
+            const SizedBox(height: 16),
+            OutlinedButton.icon(
+              key: const Key('open_guide'),
+              icon: Text(guide.icon, style: const TextStyle(fontSize: 20)),
+              label: Text('${l.t('knowledge')}: ${guide.name}'),
+              onPressed: () => AppRouter.cropGuide(context, guide),
+            ),
+          ],
           const SizedBox(height: 16),
           Text(
             l.t('ai_disclaimer'),

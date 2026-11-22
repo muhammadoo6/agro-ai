@@ -42,6 +42,10 @@ class OfflineDiagnoser {
           if (isProduce(l)) base.produceName(l, lang),
       ];
 
+  /// Первые 8 названий и «…», чтобы подсказка не растягивалась на весь экран.
+  static String _shortList(List<String> names) =>
+      names.length <= 8 ? names.join(', ') : '${names.take(8).join(', ')}…';
+
   Future<PlantScan> diagnose({
     required Uint8List imageBytes,
     required String imagePath,
@@ -91,7 +95,7 @@ class OfflineDiagnoser {
                   'Снимайте при дневном свете, без вспышки.',
                   'Модель знает культуры: ${cropNames(lang).join(', ')}.',
                   if (produceNames(lang).isNotEmpty)
-                    'По фото урожая модель узнаёт: ${produceNames(lang).join(', ')}.',
+                    'По фото урожая модель узнаёт ${produceNames(lang).length} видов: ${_shortList(produceNames(lang))}.',
                 ]
               : [
                   'Модел бемориро аз рӯи БАРГ муайян мекунад. Лӯнда, мева, реша ва хокро арзёбӣ намекунад.',
@@ -99,7 +103,7 @@ class OfflineDiagnoser {
                   'Дар рӯшноии рӯз, бе флеш акс гиред.',
                   'Модел ин зироатҳоро медонад: ${cropNames(lang).join(', ')}.',
                   if (produceNames(lang).isNotEmpty)
-                    'Аз акси ҳосил модел инҳоро мешиносад: ${produceNames(lang).join(', ')}.',
+                    'Аз акси ҳосил модел ${produceNames(lang).length} намудро мешиносад: ${_shortList(produceNames(lang))}.',
                 ],
           prevention: const [],
           source: ScanSource.model,
@@ -222,7 +226,7 @@ class OfflineDiagnoser {
     final leafKnown = classifier.labels
         .where(isLeafClass)
         .map(DiseaseBase.cropKeyOf)
-        .any((c) => c.startsWith(key) || key.startsWith(c));
+        .any((c) => c == key || c.startsWith('${key},') || c.startsWith('${key}_'));
     return PlantScan(
       id: newId(),
       imagePath: imagePath,
