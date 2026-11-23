@@ -196,6 +196,14 @@ void main() {
       expect(s.recommendations.join(' '), contains('онлайн'));
     });
 
+    test('produce wins when its share is split between similar fruits', () {
+      // not_leaf 0.35, potato 0.33, watermelon 0.27 → в сумме урожай 0.6
+      const p = [0.03, 0.02, 0.35, 0.33, 0.27];
+      final s = od(p).interpret(probs: p, imagePath: '/a.jpg', lang: 'ru', leafRatio: 0);
+      expect(s.isProduce, isTrue);
+      expect(s.diagnosis, 'Это: Картофель');
+    });
+
     test('weak produce guess does not hide a leaf disease', () {
       const p = [0.6, 0.05, 0.05, 0.25, 0.05];
       final s = od(p).interpret(probs: p, imagePath: '/a.jpg', lang: 'tg');

@@ -35,7 +35,7 @@ void main() {
         File('assets/data/crop_guides_tg.json').readAsStringSync());
 
     test('all guides are complete', () {
-      expect(kb.guides.length, greaterThanOrEqualTo(30));
+      expect(kb.guides.length, greaterThanOrEqualTo(50));
       final ids = <String>{};
       for (final g in kb.guides) {
         expect(ids.add(g.id), isTrue, reason: 'duplicate id ${g.id}');

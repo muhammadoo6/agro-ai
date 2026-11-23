@@ -15,6 +15,10 @@ class OfflineDiagnoser {
   /// Ниже этой уверенности результат считается «не распознано».
   static const minConfidence = 0.55;
 
+  /// Урожай: сумма вероятностей всех плодов и минимум для лучшего из них.
+  static const produceSumMin = 0.5;
+  static const produceBestMin = 0.3;
+
   /// Если цвета листа на фото меньше этой доли — это не лист (клубень, плод, земля).
   static const minLeafRatio = 0.08;
 
@@ -117,6 +121,21 @@ class OfflineDiagnoser {
       }
       if (best >= 0 && isProduce(labels[best]) && p[best] >= minConfidence) {
         return _produceScan(labels[best], p[best].clamp(0.0, 1.0), imagePath, lang, plotId);
+      }
+      // Вероятность делится между похожими плодами (помидор/гранат/яблоко)
+      // или с «не лист», но в сумме это явно урожай — называем лучший вариант.
+      var bestProduce = -1;
+      var produceSum = 0.0;
+      for (var i = 0; i < p.length; i++) {
+        if (!isProduce(labels[i])) continue;
+        produceSum += p[i];
+        if (bestProduce < 0 || p[i] > p[bestProduce]) bestProduce = i;
+      }
+      if (bestProduce >= 0 &&
+          produceSum >= produceSumMin &&
+          p[bestProduce] >= produceBestMin) {
+        return _produceScan(
+            labels[bestProduce], p[bestProduce].clamp(0.0, 1.0), imagePath, lang, plotId);
       }
       // Иначе урожай не рассматриваем: дальше — как раньше, только листья.
       final sum = [for (var i = 0; i < p.length; i++) if (!isProduce(labels[i])) p[i]]

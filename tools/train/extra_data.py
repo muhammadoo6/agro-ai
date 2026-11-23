@@ -257,70 +257,80 @@ def load_plantdoc(img):
 # * Fruit and Vegetable Image Recognition (реальные фото, 36 видов),
 #   зеркало HF: Nattakarn/fruit-and-vegetable-image-recognition
 # * Fruits-360 (Mureșan & Oltean, 2018), зеркало HF: PedroSampaio/fruits-360 (MIT)
+# * Fruits-262 (Minuț & Iftene, 2021) — фото из интернета, 262 вида, зеркало HF: Docty/Fruits-262
+# * Vegetable Image Dataset (Ahmed et al., 2021), 15 овощей, Apache-2.0, зеркало HF: cc92yy3344/vegetable
 PRODUCE_SOURCES = [
     ("Nattakarn/fruit-and-vegetable-image-recognition", "real"),
     ("PedroSampaio/fruits-360", "f360"),
+    ("Docty/Fruits-262", "f262"),
 ]
+VEG_REPO = "cc92yy3344/vegetable"
 # Класс модели → названия в наборах (без регистра; для Fruits-360 — по началу имени).
 PRODUCE_MAP = {
-    "potato": {"real": ["potato"], "f360": ["potato red", "potato white"]},
-    "tomato": {"real": ["tomato"], "f360": ["tomato"]},
-    "cucumber": {"real": ["cucumber"], "f360": ["cucumber"]},
+    "potato": {"real": ["potato"], "f360": ["potato red", "potato white"], "veg": ["potato"]},
+    "tomato": {"real": ["tomato"], "f360": ["tomato"], "f262": ["tomato"], "veg": ["tomato"]},
+    "cucumber": {"real": ["cucumber"], "f360": ["cucumber"], "veg": ["cucumber"]},
     "onion": {"real": ["onion"], "f360": ["onion"]},
-    "carrot": {"real": ["carrot"], "f360": []},
-    "cabbage": {"real": ["cabbage"], "f360": []},
-    "eggplant": {"real": ["eggplant"], "f360": ["eggplant"]},
-    "pepper": {"real": ["bell pepper", "capsicum", "paprika"], "f360": ["pepper"]},
-    "watermelon": {"real": ["watermelon"], "f360": ["watermelon"]},
-    "melon": {"real": [], "f360": ["melon", "cantaloupe"]},
-    "apple": {"real": ["apple"], "f360": ["apple"]},
-    "grape": {"real": ["grapes"], "f360": ["grape "]},
-    "pomegranate": {"real": ["pomegranate"], "f360": ["pomegranate"]},
-    "apricot": {"real": [], "f360": ["apricot"]},
-    "peach": {"real": [], "f360": ["peach", "nectarine"]},
-    "pear": {"real": ["pear"], "f360": ["pear"]},
-    "corn": {"real": ["corn", "sweetcorn"], "f360": ["corn"]},
+    "carrot": {"real": ["carrot"], "f360": [], "veg": ["carrot"]},
+    "cabbage": {"real": ["cabbage"], "f360": [], "veg": ["cabbage"]},
+    "eggplant": {"real": ["eggplant"], "f360": ["eggplant"], "f262": ["eggplant"], "veg": ["brinjal"]},
+    "pepper": {"real": ["bell pepper", "capsicum", "paprika"], "f360": ["pepper"], "f262": ["bell pepper"], "veg": ["capsicum"]},
+    "watermelon": {"real": ["watermelon"], "f360": ["watermelon"], "f262": ["watermelon"]},
+    "melon": {"real": [], "f360": ["melon", "cantaloupe"], "f262": ["cantaloupe", "muskmelon", "galia melon"]},
+    "apple": {"real": ["apple"], "f360": ["apple"], "f262": ["apple"]},
+    "grape": {"real": ["grapes"], "f360": ["grape "], "f262": ["grape"]},
+    "pomegranate": {"real": ["pomegranate"], "f360": ["pomegranate"], "f262": ["pomegranate"]},
+    "apricot": {"real": [], "f360": ["apricot"], "f262": ["apricot"]},
+    "peach": {"real": [], "f360": ["peach", "nectarine"], "f262": ["nectarine"]},
+    "pear": {"real": ["pear"], "f360": ["pear"], "f262": ["pear"]},
+    "corn": {"real": ["corn", "sweetcorn"], "f360": ["corn"], "f262": ["corn kernel"]},
     "garlic": {"real": ["garlic"], "f360": []},
     "beetroot": {"real": ["beetroot"], "f360": ["beetroot"]},
-    "lemon": {"real": ["lemon"], "f360": ["lemon"]},
-    "banana": {"real": ["banana"], "f360": ["banana"]},
-    "cherry": {"real": [], "f360": ["cherry"]},
-    "strawberry": {"real": [], "f360": ["strawberry"]},
+    "lemon": {"real": ["lemon"], "f360": ["lemon"], "f262": ["lemon"]},
+    "banana": {"real": ["banana"], "f360": ["banana"], "f262": ["banana"]},
+    "cherry": {"real": [], "f360": ["cherry"], "f262": ["cherry", "black cherry"]},
+    "strawberry": {"real": [], "f360": ["strawberry"], "f262": ["strawberry"]},
     "walnut": {"real": [], "f360": ["walnut"]},
-    "radish": {"real": ["raddish"], "f360": []},
+    "radish": {"real": ["raddish"], "f360": [], "veg": ["radish"]},
     "turnip": {"real": ["turnip"], "f360": []},
-    # v5: ещё 28 видов — фрукты, ягоды, орехи, овощи и бобовые
-    "plum": {"real": [], "f360": ["plum"]},
-    "quince": {"real": [], "f360": ["quince"]},
-    "persimmon": {"real": [], "f360": ["kaki"]},
-    "fig": {"real": [], "f360": ["fig"]},
-    "mulberry": {"real": [], "f360": ["mulberry"]},
-    "raspberry": {"real": [], "f360": ["raspberry"]},
-    "currant": {"real": [], "f360": ["redcurrant"]},
-    "blueberry": {"real": [], "f360": ["blueberry"]},
+    "plum": {"real": [], "f360": ["plum"], "f262": ["damson", "greengage", "yellow plum"]},
+    "quince": {"real": [], "f360": ["quince"], "f262": ["quince"]},
+    "persimmon": {"real": [], "f360": ["kaki"], "f262": ["persimmon"]},
+    "fig": {"real": [], "f360": ["fig"], "f262": ["fig"]},
+    "mulberry": {"real": [], "f360": ["mulberry"], "f262": ["black mullberry", "white mulberry", "red mulberry"]},
+    "raspberry": {"real": [], "f360": ["raspberry"], "f262": ["raspberry"]},
+    "currant": {"real": [], "f360": ["redcurrant"], "f262": ["redcurrant"]},
+    "blueberry": {"real": [], "f360": ["blueberry"], "f262": ["blueberry"]},
     "hazelnut": {"real": [], "f360": ["hazelnut", "nut forest"]},
     "chestnut": {"real": [], "f360": ["chestnut"]},
-    "dates": {"real": [], "f360": ["dates"]},
-    "orange": {"real": ["orange"], "f360": ["orange"]},
-    "mandarin": {"real": [], "f360": ["mandarine", "clementine", "tangelo"]},
-    "grapefruit": {"real": [], "f360": ["grapefruit"]},
-    "kiwi": {"real": ["kiwi"], "f360": ["kiwi"]},
-    "mango": {"real": ["mango"], "f360": ["mango "]},
-    "pineapple": {"real": ["pineapple"], "f360": ["pineapple"]},
-    "avocado": {"real": [], "f360": ["avocado"]},
-    "coconut": {"real": [], "f360": ["cocos"]},
-    "cauliflower": {"real": ["cauliflower"], "f360": ["cauliflower"]},
+    "dates": {"real": [], "f360": ["dates"], "f262": ["date"]},
+    "orange": {"real": ["orange"], "f360": ["orange"], "f262": ["orange"]},
+    "mandarin": {"real": [], "f360": ["mandarine", "clementine", "tangelo"], "f262": ["mandarine", "clementine", "tangelo"]},
+    "grapefruit": {"real": [], "f360": ["grapefruit"], "f262": ["grapefruit"]},
+    "kiwi": {"real": ["kiwi"], "f360": ["kiwi"], "f262": ["kiwi", "hard kiwi"]},
+    "mango": {"real": ["mango"], "f360": ["mango "], "f262": ["mango"]},
+    "pineapple": {"real": ["pineapple"], "f360": ["pineapple"], "f262": ["pineapple"]},
+    "avocado": {"real": [], "f360": ["avocado"], "f262": ["avocado"]},
+    "coconut": {"real": [], "f360": ["cocos"], "f262": ["coconut"]},
+    "cauliflower": {"real": ["cauliflower"], "f360": ["cauliflower"], "veg": ["cauliflower"]},
     "kohlrabi": {"real": [], "f360": ["kohlrabi"]},
     "ginger": {"real": ["ginger"], "f360": ["ginger root"]},
     "sweet_potato": {"real": ["sweetpotato"], "f360": ["potato sweet"]},
-    "chilli": {"real": ["chilli pepper", "jalepeno"], "f360": []},
+    "chilli": {"real": ["chilli pepper", "jalepeno"], "f360": [], "f262": ["jalapeno"]},
     "lettuce": {"real": ["lettuce"], "f360": []},
     "spinach": {"real": ["spinach"], "f360": []},
-    "peas": {"real": ["peas"], "f360": []},
+    "peas": {"real": ["peas"], "f360": [], "f262": ["pea"]},
     "soybean": {"real": ["soy beans"], "f360": []},
+    "pumpkin": {"f262": ["pumpkin"], "veg": ["pumpkin"]},
+    "zucchini": {"f262": ["zucchini"]},
+    "jujube": {"f262": ["jujube"]},
+    "bean": {"veg": ["bean"]},
+    "broccoli": {"veg": ["broccoli"]},
 }
 PRODUCE_PREFIX = "Produce___"
-F360_MAX = int(os.environ.get("F360_MAX", "300"))  # студийные кадры похожи — берём часть
+F360_MAX = int(os.environ.get("F360_MAX", "150"))  # студийные кадры похожи — берём часть
+F262_MAX = int(os.environ.get("F262_MAX", "350"))  # фото из интернета — ближе к снимкам с телефона
+VEG_MAX = int(os.environ.get("VEG_MAX", "250"))
 REAL_MAX = int(os.environ.get("REAL_MAX", "400"))
 
 
@@ -345,19 +355,83 @@ def _hf_info(repo):
 def _produce_class(name, kind):
     n = name.lower().strip()
     for cls, m in PRODUCE_MAP.items():
-        for key in m[kind]:
-            if (n == key) if kind == "real" else (n + " ").startswith(key if key.endswith(" ") else key):
+        for key in m.get(kind, []):
+            if (n == key) if kind != "f360" else (n + " ").startswith(key if key.endswith(" ") else key):
                 return PRODUCE_PREFIX + cls
     return None
+
+
+def _keep(per, seen, cls, item, cap, rng):
+    """Равномерная выборка не больше cap штук на класс без хранения всего набора."""
+    seen[cls] = seen.get(cls, 0) + 1
+    lst = per.setdefault(cls, [])
+    if len(lst) < cap:
+        lst.append(item)
+    else:
+        j = int(rng.integers(0, seen[cls]))
+        if j < cap:
+            lst[j] = item
+
+
+def _load_veg(rng):
+    """Vegetable Image Dataset: отдельные jpg; качаем только нужные классы, VEG_MAX на класс."""
+    import json
+    from concurrent.futures import ThreadPoolExecutor
+    req = urllib.request.Request(f"https://huggingface.co/api/datasets/{VEG_REPO}",
+                                 headers={"User-Agent": "agro-ai-trainer"})
+    with urllib.request.urlopen(req, timeout=120) as r:
+        files = [x["rfilename"] for x in json.load(r)["siblings"] if x["rfilename"].endswith(".jpg")]
+    by_cls = {}
+    for fn in files:
+        parts = fn.split("/")
+        if len(parts) < 4 or parts[1] != "train":
+            continue
+        cls = _produce_class(parts[2].replace("_", " "), "veg")
+        if cls:
+            by_cls.setdefault(cls, []).append(fn)
+    jobs = []
+    for cls, fns in by_cls.items():
+        for i in rng.permutation(len(fns))[:VEG_MAX]:
+            jobs.append((cls, fns[i]))
+
+    def get(job):
+        cls, fn = job
+        local = os.path.join(CACHE, "veg", fn.replace("/", "_"))
+        try:
+            _download(f"https://huggingface.co/datasets/{VEG_REPO}/resolve/main/{urllib.request.quote(fn)}", local)
+            with open(local, "rb") as f:
+                return cls, f.read()
+        except Exception as e:  # noqa: BLE001
+            print("skip veg image:", fn, e)
+            return cls, None
+
+    per = {}
+    with ThreadPoolExecutor(16) as ex:
+        for cls, data in ex.map(get, jobs):
+            if data:
+                per.setdefault(cls, []).append(data)
+    return per
 
 
 def load_produce(img):
     import pyarrow.parquet as pq
     rng = np.random.default_rng(11)
     xs, ys = [], []
+
+    def add(per, kind):
+        for cls, items in sorted(per.items()):
+            for data in items:
+                try:
+                    xs.append(_jpeg(_prep(data, img)))
+                    ys.append(cls)
+                except Exception as e:  # noqa: BLE001
+                    print("skip produce image:", e)
+        print(f"produce {kind}:", {k: len(v) for k, v in sorted(per.items())})
+
     for repo, kind in PRODUCE_SOURCES:
         names, files = _hf_info(repo)
-        per = {}
+        cap = {"real": REAL_MAX, "f360": F360_MAX, "f262": F262_MAX}[kind]
+        per, seen = {}, {}
         for fn in files:
             local = os.path.join(CACHE, repo.replace("/", "_"), os.path.basename(fn))
             _download(f"https://huggingface.co/datasets/{repo}/resolve/main/{fn}", local)
@@ -365,20 +439,13 @@ def load_produce(img):
             for batch in pf.iter_batches(batch_size=256, columns=["image", "label"]):
                 for row in batch.to_pylist():
                     cls = _produce_class(names[int(row["label"])], kind)
-                    if cls is None:
-                        continue
-                    per.setdefault(cls, []).append(row["image"]["bytes"])
-        cap = REAL_MAX if kind == "real" else F360_MAX
-        for cls, items in sorted(per.items()):
-            idx = rng.permutation(len(items))[:cap]
-            for i in idx:
-                try:
-                    xs.append(_jpeg(_prep(items[i], img)))
-                    ys.append(cls)
-                except Exception as e:  # noqa: BLE001
-                    print("skip produce image:", e)
-        per.clear()
-        print(f"produce {kind}:", {k: ys.count(k) for k in sorted(set(ys))})
+                    if cls is not None:
+                        _keep(per, seen, cls, row["image"]["bytes"], cap, rng)
+            if kind == "f262":
+                os.remove(local)  # 3 ГБ — не держим на диске раннера
+        add(per, kind)
+    add(_load_veg(rng), "veg")
+    print("produce total:", {k: ys.count(k) for k in sorted(set(ys))})
     return xs, ys
 
 
