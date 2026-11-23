@@ -46,7 +46,7 @@ void main() {
     await tester.tap(navItem('Донишнома'));
     await tester.pumpAndSettle();
     expect(find.text('Гандум'), findsOneWidget);
-    expect(find.textContaining('Сабзавот'), findsWidgets);
+    expect(find.textContaining('Ғалладона'), findsWidgets);
   });
 
   testWidgets('add plot: validation then save', (tester) async {

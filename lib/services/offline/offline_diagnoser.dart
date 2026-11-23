@@ -245,7 +245,7 @@ class OfflineDiagnoser {
     final leafKnown = classifier.labels
         .where(isLeafClass)
         .map(DiseaseBase.cropKeyOf)
-        .any((c) => c == key || c.startsWith('${key},') || c.startsWith('${key}_'));
+        .any((c) => c == key || c.startsWith('$key,') || c.startsWith('${key}_'));
     return PlantScan(
       id: newId(),
       imagePath: imagePath,
