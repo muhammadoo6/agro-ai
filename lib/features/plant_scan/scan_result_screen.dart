@@ -161,8 +161,7 @@ String shareText(PlantScan scan, String recsTitle) => [
       ],
       '',
       '— Agro AI',
-    ].join('
-');
+    ].join('\n');
 
 class _Section extends StatelessWidget {
   const _Section({required this.title, required this.icon, required this.items});
