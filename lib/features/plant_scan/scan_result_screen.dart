@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../core/app_scope.dart';
 import '../../core/localization/app_strings.dart';
@@ -35,6 +36,15 @@ class ScanResultScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(l.t('diagnosis')),
         actions: [
+          IconButton(
+            key: const Key('share_scan'),
+            tooltip: l.t('share'),
+            icon: const Icon(Icons.share_outlined),
+            onPressed: () => SharePlus.instance.share(ShareParams(
+              text: shareText(scan, l.t('share_recs')),
+              files: file.existsSync() ? [XFile(file.path)] : null,
+            )),
+          ),
           IconButton(
             tooltip: l.t('delete'),
             icon: const Icon(Icons.delete_outline),
@@ -138,6 +148,21 @@ class ScanResultScreen extends StatelessWidget {
     );
   }
 }
+
+/// Матн барои фиристодан ба WhatsApp/Telegram (агроном ё ҳамсоя).
+String shareText(PlantScan scan, String recsTitle) => [
+      if (scan.cropName?.isNotEmpty == true) '🌱 ${scan.cropName}',
+      '🔎 ${scan.diagnosis}',
+      if (scan.confidence > 0) '📊 ${(scan.confidence * 100).round()}%',
+      if (scan.recommendations.isNotEmpty) ...[
+        '',
+        '$recsTitle:',
+        for (final r in scan.recommendations.take(5)) '• $r',
+      ],
+      '',
+      '— Agro AI',
+    ].join('
+');
 
 class _Section extends StatelessWidget {
   const _Section({required this.title, required this.icon, required this.items});

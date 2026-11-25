@@ -29,6 +29,20 @@ class _PlantScanScreenState extends State<PlantScanScreen> {
   bool _busy = false;
   File? _preview;
 
+  /// Фильтр истории: all / sick / healthy / produce.
+  String _filter = 'all';
+
+  static bool _uncertain(PlantScan sc) =>
+      sc.source == ScanSource.offline ||
+      (sc.source == ScanSource.model && sc.confidence < 0.55);
+
+  bool _matches(PlantScan sc) => switch (_filter) {
+        'sick' => !sc.isProduce && !sc.isHealthy && !_uncertain(sc),
+        'healthy' => !sc.isProduce && sc.isHealthy && !_uncertain(sc),
+        'produce' => sc.isProduce,
+        _ => true,
+      };
+
   @override
   void dispose() {
     _cropHint.dispose();
@@ -245,14 +259,32 @@ class _PlantScanScreenState extends State<PlantScanScreen> {
                 ),
               ),
               SectionHeader(l.t('scan_history')),
+              if (scans.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Wrap(
+                    spacing: 8,
+                    children: [
+                      for (final f in const ['all', 'sick', 'healthy', 'produce'])
+                        ChoiceChip(
+                          key: Key('filter_$f'),
+                          label: Text(l.t(f == 'all' ? 'all' : 'filter_$f')),
+                          selected: _filter == f,
+                          onSelected: (_) => setState(() => _filter = f),
+                        ),
+                    ],
+                  ),
+                ),
               if (scans.isEmpty)
                 Card(child: ListTile(title: Text(l.t('no_scans'))))
+              else if (!scans.any(_matches))
+                Card(child: ListTile(title: Text(l.t('nothing_found'))))
               else
                 Card(
                   clipBehavior: Clip.antiAlias,
                   child: Column(
                     children: [
-                      for (final sc in scans)
+                      for (final sc in scans.where(_matches))
                         ListTile(
                           leading: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
