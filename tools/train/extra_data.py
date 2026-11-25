@@ -246,10 +246,47 @@ def load_plantdoc(img):
             except Exception as e:  # noqa: BLE001
                 print("skip plantdoc image:", e)
     print("plantdoc skipped classes:", sorted(skipped))
+    try:  # полевые фото картошки (AgML) — только в обучение
+        ax, an = load_agml_potato(img)
+        res["train"][0].extend(ax)
+        res["train"][1].extend(an)
+    except Exception as e:  # noqa: BLE001
+        print("agml potato skipped:", e)
     for s in ("train", "test"):
         names = res[s][1]
         print(f"plantdoc {s}: {len(names)}", {k: names.count(k) for k in sorted(set(names))})
     return res["train"][0], res["train"][1], res["test"][0], res["test"][1]
+
+
+AGML_POTATO = "Project-AgML/potato_leaf_disease_classification"  # CC BY 4.0, поле (Индонезия)
+AGML_POTATO_MAP = {"Phytopthora": "Potato___Late_blight", "Healthy": "Potato___healthy"}
+AGML_MAX = int(os.environ.get("AGML_MAX", "400"))
+
+
+def load_agml_potato(img):
+    """Листья картошки, снятые в поле телефоном: фитофтороз и здоровые."""
+    import pyarrow.parquet as pq
+    rng = np.random.default_rng(5)
+    names, files = _hf_info(AGML_POTATO)
+    per, seen = {}, {}
+    for fn in files:
+        local = os.path.join(CACHE, "agml_potato", os.path.basename(fn))
+        _download(f"https://huggingface.co/datasets/{AGML_POTATO}/resolve/main/{fn}", local)
+        for batch in pq.ParquetFile(local).iter_batches(batch_size=128, columns=["image", "label"]):
+            for row in batch.to_pylist():
+                cls = AGML_POTATO_MAP.get(names[int(row["label"])])
+                if cls:
+                    _keep(per, seen, cls, row["image"]["bytes"], AGML_MAX, rng)
+    xs, ys = [], []
+    for cls, items in per.items():
+        for data in items:
+            try:
+                xs.append(_jpeg(_prep(data, img)))
+                ys.append(cls)
+            except Exception as e:  # noqa: BLE001
+                print("skip agml image:", e)
+    print("agml potato:", {k: ys.count(k) for k in sorted(set(ys))})
+    return xs, ys
 
 
 # ---------------------------------------------------------------------------
@@ -329,7 +366,7 @@ PRODUCE_MAP = {
 }
 PRODUCE_PREFIX = "Produce___"
 F360_MAX = int(os.environ.get("F360_MAX", "150"))  # студийные кадры похожи — берём часть
-F262_MAX = int(os.environ.get("F262_MAX", "350"))  # фото из интернета — ближе к снимкам с телефона
+F262_MAX = int(os.environ.get("F262_MAX", "600"))  # фото из интернета — ближе к снимкам с телефона
 VEG_MAX = int(os.environ.get("VEG_MAX", "250"))
 REAL_MAX = int(os.environ.get("REAL_MAX", "400"))
 
