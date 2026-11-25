@@ -78,7 +78,7 @@ jobs:
         run: |
           sed -i '' 's/PRODUCT_BUNDLE_IDENTIFIER = tj.agroai.agroAi;/PRODUCT_BUNDLE_IDENTIFIER = tj.agroai.agroAi.online;/' ios/Runner.xcodeproj/project.pbxproj
           plutil -replace CFBundleDisplayName -string "Agro AI Online" ios/Runner/Info.plist
-          flutter build ios --release --no-codesign --dart-define=EDITION=online
+          flutter build ios --release --no-codesign --dart-define=EDITION=online --dart-define=AGRO_PROXY_URL=${{ vars.AGRO_PROXY_URL }}
           APP=build/ios/iphoneos/Runner.app
           /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" -c "Print :CFBundleDisplayName" -c "Print :CFBundleShortVersionString" "$APP/Info.plist"
           rm -rf ipa && mkdir -p ipa/Payload

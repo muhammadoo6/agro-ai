@@ -10,6 +10,7 @@ import '../../core/navigation/app_router.dart';
 import '../../core/utils/formatters.dart';
 import '../../core/utils/id.dart';
 import '../../data/remote/claude_api_client.dart';
+import '../../data/repositories/settings_repository.dart' show AiProvider;
 import '../../models/plant_scan.dart';
 import '../../services/ai_service.dart';
 import '../../shared/widgets/common.dart';
@@ -60,7 +61,9 @@ class _PlantScanScreenState extends State<PlantScanScreen> {
       final settings = s.settings.value;
       PlantScan result;
       final offline = s.offline;
-      if (offline != null && (s.config.isOffline || !settings.hasApiKey)) {
+      // Без своего ключа онлайн-анализ идёт через наш сервер (если он задан при сборке).
+      final viaProxy = !s.config.isOffline && !settings.hasApiKey && s.ai.hasProxy;
+      if (offline != null && (s.config.isOffline || (!settings.hasApiKey && !viaProxy))) {
         // Своя модель в телефоне — без интернета.
         result = await offline.diagnose(
           imageBytes: await saved.readAsBytes(),
@@ -77,8 +80,9 @@ class _PlantScanScreenState extends State<PlantScanScreen> {
         result = await s.ai.analyze(
           image: saved,
           savedImagePath: saved.path,
-          apiKey: settings.activeKey,
-          provider: settings.aiProvider,
+          apiKey: viaProxy ? await s.settings.deviceId() : settings.activeKey,
+          provider: viaProxy ? AiProvider.gemini : settings.aiProvider,
+          viaProxy: viaProxy,
           lang: settings.languageCode,
           cropHint: _cropHint.text,
           plotId: _plotId,

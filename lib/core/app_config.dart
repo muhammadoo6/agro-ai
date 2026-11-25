@@ -13,6 +13,11 @@ class AppConfig {
 
   bool get isOffline => edition == AppEdition.offline;
 
+  /// Адрес своего сервера-посредника (tools/proxy). Через него онлайн-анализ
+  /// работает без ключа у пользователя. Задаётся при сборке:
+  /// `--dart-define=AGRO_PROXY_URL=https://agro-ai-proxy.<имя>.workers.dev`.
+  static const proxyUrl = String.fromEnvironment('AGRO_PROXY_URL');
+
   /// Для сборок без flavor (iOS): `--dart-define=EDITION=offline`.
   static const _definedEdition = String.fromEnvironment('EDITION');
 

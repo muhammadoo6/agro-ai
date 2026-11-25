@@ -1,0 +1,10 @@
+name = "agro-ai-proxy"
+main = "worker.js"
+compatibility_date = "2025-06-01"
+
+[vars]
+# Сколько онлайн-анализов в день разрешено одному телефону.
+DAILY_LIMIT = "20"
+
+# Ключ Gemini НЕ пишется сюда. Он задаётся секретом:
+#   npx wrangler secret put GEMINI_KEY

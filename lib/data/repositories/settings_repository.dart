@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 
+import '../../core/utils/id.dart';
 import '../local/local_store.dart';
 
 /// Внешний AI для онлайн-версии.
@@ -101,6 +102,17 @@ class SettingsRepository extends ValueNotifier<AppSettings> {
     } catch (_) {
       // танзимоти вайрон — пешфарз
     }
+  }
+
+  /// Случайный ID телефона для сервера-посредника (лимит анализов в день).
+  /// Не связан с личными данными, хранится только на телефоне.
+  Future<String> deviceId() async {
+    const key = 'device_id';
+    final old = await _store.read(key);
+    if (old != null && old.length >= 8) return old;
+    final id = 'dev-${newId()}';
+    await _store.write(key, id);
+    return id;
   }
 
   Future<void> update(AppSettings s) async {

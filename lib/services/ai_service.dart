@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import '../core/app_config.dart';
 import '../core/utils/id.dart';
 import '../data/remote/claude_api_client.dart';
 import '../data/remote/gemini_api_client.dart';
@@ -13,12 +14,24 @@ import '../models/plant_scan.dart';
 /// Провайдер: Gemini (ройгон) ё Claude. Агар калид набошад — маслиҳати офлайн
 /// аз донишнома.
 class AiService {
-  AiService({ClaudeApiClient? client, GeminiApiClient? gemini})
+  AiService({
+    ClaudeApiClient? client,
+    GeminiApiClient? gemini,
+    GeminiApiClient? proxy,
+    String proxyUrl = AppConfig.proxyUrl,
+  })  : _proxy = proxy ??
+            (proxyUrl.isEmpty ? null : GeminiApiClient(baseUrl: _trimSlash(proxyUrl))),
       : _client = client ?? ClaudeApiClient(),
         _gemini = gemini ?? GeminiApiClient();
 
   final ClaudeApiClient _client;
   final GeminiApiClient _gemini;
+
+  /// Свой сервер-посредник: онлайн-анализ без ключа пользователя.
+  final GeminiApiClient? _proxy;
+  bool get hasProxy => _proxy != null;
+
+  static String _trimSlash(String u) => u.endsWith('/') ? u.substring(0, u.length - 1) : u;
 
   /// Проверка ключа Gemini: возвращает имя модели, которая ответила.
   Future<String> checkGeminiKey(String key) => _gemini.checkKey(key.trim());
@@ -90,7 +103,9 @@ class AiService {
     String? cropHint,
     String? plotId,
     KnowledgeBase? knowledge,
+    bool viaProxy = false,
   }) async {
+    final proxy = viaProxy ? _proxy : null;
     if (apiKey.trim().isEmpty) {
       return offlineAdvice(
         imagePath: savedImagePath,
@@ -107,8 +122,8 @@ class AiService {
       prompt.write(' Фермер говорит, что это: ${cropHint.trim()}.');
     }
 
-    final j = provider == AiProvider.gemini
-        ? await _gemini.analyzeImage(
+    final j = proxy != null || provider == AiProvider.gemini
+        ? await (proxy ?? _gemini).analyzeImage(
             apiKey: apiKey.trim(),
             base64Image: base64Encode(bytes),
             mediaType: _mediaType(image.path),

@@ -96,13 +96,13 @@ jobs:
 
       - name: Build APK (online + offline)
         run: |
-          flutter build apk --release --split-per-abi --flavor online
+          flutter build apk --release --split-per-abi --flavor online --dart-define=AGRO_PROXY_URL=${{ vars.AGRO_PROXY_URL }}
           flutter build apk --release --split-per-abi --flavor offline
           ls -la build/app/outputs/flutter-apk/
 
       - name: Build App Bundles (Google Play)
         run: |
-          flutter build appbundle --release --flavor online
+          flutter build appbundle --release --flavor online --dart-define=AGRO_PROXY_URL=${{ vars.AGRO_PROXY_URL }}
           flutter build appbundle --release --flavor offline
 
       - name: Verify signature and permissions
