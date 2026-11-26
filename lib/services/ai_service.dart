@@ -19,10 +19,10 @@ class AiService {
     GeminiApiClient? gemini,
     GeminiApiClient? proxy,
     String proxyUrl = AppConfig.proxyUrl,
-  })  : _proxy = proxy ??
-            (proxyUrl.isEmpty ? null : GeminiApiClient(baseUrl: _trimSlash(proxyUrl))),
-      : _client = client ?? ClaudeApiClient(),
-        _gemini = gemini ?? GeminiApiClient();
+  })  : _client = client ?? ClaudeApiClient(),
+        _gemini = gemini ?? GeminiApiClient(),
+        _proxy = proxy ??
+            (proxyUrl.isEmpty ? null : GeminiApiClient(baseUrl: _trimSlash(proxyUrl)));
 
   final ClaudeApiClient _client;
   final GeminiApiClient _gemini;
