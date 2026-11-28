@@ -181,7 +181,9 @@ class _PlantScanScreenState extends State<PlantScanScreen> {
                               color: Theme.of(context).colorScheme.error),
                         ),
                       ],
-                      if (!s.config.isOffline && !s.settings.value.hasApiKey) ...[
+                      if (!s.config.isOffline &&
+                          !s.settings.value.hasApiKey &&
+                          !s.ai.hasProxy) ...[
                         const SizedBox(height: 8),
                         Text(
                           l.t('offline_note'),

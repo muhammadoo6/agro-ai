@@ -122,8 +122,11 @@ class SettingsScreen extends StatelessWidget {
                       title: Text(l.t(settings.aiProvider == AiProvider.gemini
                           ? 'gemini_key'
                           : 'api_key')),
-                      subtitle: Text(l.t(
-                          settings.hasApiKey ? 'api_key_set' : 'api_key_not_set')),
+                      subtitle: Text(l.t(settings.hasApiKey
+                          ? 'api_key_set'
+                          : s.ai.hasProxy
+                              ? 'api_key_proxy'
+                              : 'api_key_not_set')),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () => _editApiKey(context),
                     ),
